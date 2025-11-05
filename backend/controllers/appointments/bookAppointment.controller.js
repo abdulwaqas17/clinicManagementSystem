@@ -26,6 +26,7 @@ const bookAppointment = async (req, res) => {
 
     // Check if doctor already has appointment booked for same date/time
     const existingAppointment = await Appointment.findOne({
+      user: loggedInUser._id,
       doctor,
       date: new Date(date),
       "timeSlot.startTime": timeSlot.startTime,
@@ -41,8 +42,8 @@ const bookAppointment = async (req, res) => {
     }
 
     // Create new appointment
-    const appointment = new Appointment({
-      user: loggedInUser._id,
+    const appointment = new Appointment({ 
+      user: loggedInUser.id,
       doctor,
       date: new Date(date),
       timeSlot,
@@ -51,10 +52,23 @@ const bookAppointment = async (req, res) => {
 
     await appointment.save();
 
+    // Populate related details before sending response
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate("user", "firstName lastName email")
+      .populate({
+        path: "doctor",
+        select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee",
+        populate: {
+          path: "doctorInfo.doctorRoom",
+          model: "Room",
+          select: "roomNumber name",
+        },
+      });
+    // Send success response
     res.status(201).json({
       success: true,
       message: "Appointment booked successfully.",
-      data: appointment,
+      data: populatedAppointment,
     });
   } catch (error) {
     console.error("Error in bookAppointment:", error);

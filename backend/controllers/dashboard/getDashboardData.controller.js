@@ -15,6 +15,12 @@ const getDashboardData = async (req, res) => {
     console.log("====================================");
     const role = loggedInUser.role;
 
+    
+    // Check user status
+    if (loggedInUser.status === "disabled" || loggedInUser.status === "invited") {
+      return res.status(403).json({ message: "User account is disabled or Invited" });
+    }
+
     let dashboardData = {};
 
     // Admin
@@ -27,7 +33,7 @@ const getDashboardData = async (req, res) => {
         .populate("user", "firstName lastName email phone")
         .populate({
           path: "doctor",
-          select: "firstName lastName   doctorInfo",
+          select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee",
           populate: {
             path: "doctorInfo.doctorRoom",
             model: "Room",
@@ -45,7 +51,7 @@ const getDashboardData = async (req, res) => {
       const adminCaseHistory = await CaseHistory.find({
         user: loggedInUser._id,
       })
-        .populate("doctor", "firstName lastName email phone")
+        .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
       // send data
@@ -68,14 +74,14 @@ const getDashboardData = async (req, res) => {
           populate: {
             path: "caseHistory",
             populate: [
-              { path: "doctor", select: "firstName lastName doctorInfo" },
+              { path: "doctor", select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee" },
               { path: "appointment", select: "date timeSlot" },
             ],
           },
         })
         .populate({
           path: "doctor",
-          select: "firstName lastName email phone doctorInfo",
+          select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee",
           populate: {
             path: "doctorInfo.doctorRoom",
             model: "Room",
@@ -105,7 +111,7 @@ const getDashboardData = async (req, res) => {
         .populate("user", "firstName lastName email phone")
         .populate({
           path: "doctor",
-          select: "firstName lastName   doctorInfo",
+          select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee",
           populate: {
             path: "doctorInfo.doctorRoom",
             model: "Room",
@@ -120,7 +126,7 @@ const getDashboardData = async (req, res) => {
       const receptionistCaseHistory = await CaseHistory.find({
         user: loggedInUser._id,
       })
-        .populate("doctor", "firstName lastName  doctorInfo")
+        .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
       // 4. Receptionist profile
@@ -147,13 +153,13 @@ const getDashboardData = async (req, res) => {
       // 1. User's appointments
       const appointments = await Appointment.find({
         user: loggedInUser._id,
-      }).populate("doctor", "firstName lastName doctorInfo");
+      }).populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee");
 
       // 2. User's case history
       const userCaseHistory = await CaseHistory.find({
         user: loggedInUser._id,
       })
-        .populate("doctor", "firstName lastName doctorInfo")
+        .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
       // 3. User profile

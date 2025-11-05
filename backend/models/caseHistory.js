@@ -39,22 +39,17 @@ const caseHistorySchema = new mongoose.Schema(
         type: Date,
     },
     
-    // Files or reports (images, PDFs, etc.)
-    attachments: [
-        {
-            fileUrl: { type: String, required: true }, // Cloudinary or local path
-            // fileType: {
-                //   type: String,
-                //   enum: ["image", "pdf", "other"],
-        //   default: "other",
-        // },
-      },
-    ],
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("CaseHistory", caseHistorySchema);
+// Files or reports (images, PDFs, etc.)
+// attachments: [
+//     {
+//         fileUrl: { type: String }, // Cloudinary or local path
+//   },
+// ],
 
 // clinic: {
 //   type: mongoose.Schema.Types.ObjectId,

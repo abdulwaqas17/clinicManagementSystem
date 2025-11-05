@@ -19,12 +19,12 @@ const loginUser = async (req, res) => {
     }
 
     // Check user status
-    if (user.status === "disabled") {
-      return res.status(403).json({ message: "User account is disabled" });
+    if (user.status === "disabled" || user.status === "invited") {
+      return res.status(403).json({ message: "User account is disabled or Invited" });
     }
 
     // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password); 
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -35,6 +35,7 @@ const loginUser = async (req, res) => {
         id: user._id,
         email: user.email,
         role: user.role,
+        status: user.status
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
