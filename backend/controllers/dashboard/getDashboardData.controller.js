@@ -27,7 +27,7 @@ const getDashboardData = async (req, res) => {
         .populate("user", "firstName lastName email phone")
         .populate({
           path: "doctor",
-          select: "firstName lastName email phone doctorInfo",
+          select: "firstName lastName   doctorInfo",
           populate: {
             path: "doctorInfo.doctorRoom",
             model: "Room",
@@ -68,7 +68,7 @@ const getDashboardData = async (req, res) => {
           populate: {
             path: "caseHistory",
             populate: [
-              { path: "doctor", select: "firstName lastName email phone" },
+              { path: "doctor", select: "firstName lastName doctorInfo" },
               { path: "appointment", select: "date timeSlot" },
             ],
           },
@@ -95,12 +95,17 @@ const getDashboardData = async (req, res) => {
 
     // Receptionist
     else if (role === "receptionist") {
+      const doctors = await User.find({ role: "doctor" }).populate({
+        path: "doctorInfo.doctorRoom",
+        select: "roomNumber name",
+      });
+
       // 1. All appointments with user populated
       const appointments = await Appointment.find()
         .populate("user", "firstName lastName email phone")
         .populate({
           path: "doctor",
-          select: "firstName lastName email phone doctorInfo",
+          select: "firstName lastName   doctorInfo",
           populate: {
             path: "doctorInfo.doctorRoom",
             model: "Room",
@@ -115,7 +120,7 @@ const getDashboardData = async (req, res) => {
       const receptionistCaseHistory = await CaseHistory.find({
         user: loggedInUser._id,
       })
-        .populate("doctor", "firstName lastName email phone")
+        .populate("doctor", "firstName lastName  doctorInfo")
         .populate("appointment", "date timeSlot");
 
       // 4. Receptionist profile
@@ -125,6 +130,7 @@ const getDashboardData = async (req, res) => {
       dashboardData = {
         appointments,
         users,
+        doctors,
         caseHistory: receptionistCaseHistory,
         profile: receptionistProfile,
       };
@@ -132,16 +138,22 @@ const getDashboardData = async (req, res) => {
 
     // Regular User
     else if (role === "user") {
+      
+      const doctors = await User.find({ role: "doctor" }).populate({
+        path: "doctorInfo.doctorRoom",
+        select: "roomNumber name",
+      });
+
       // 1. User's appointments
       const appointments = await Appointment.find({
         user: loggedInUser._id,
-      }).populate("doctor", "firstName lastName email phone");
+      }).populate("doctor", "firstName lastName doctorInfo");
 
       // 2. User's case history
       const userCaseHistory = await CaseHistory.find({
         user: loggedInUser._id,
       })
-        .populate("doctor", "firstName lastName email phone")
+        .populate("doctor", "firstName lastName doctorInfo")
         .populate("appointment", "date timeSlot");
 
       // 3. User profile
@@ -150,6 +162,7 @@ const getDashboardData = async (req, res) => {
       // send data
       dashboardData = {
         appointments,
+        doctors,
         caseHistory: userCaseHistory,
         profile: userProfile,
       };

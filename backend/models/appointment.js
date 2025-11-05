@@ -11,13 +11,7 @@ const appointmentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    room: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Room",
-      required: true,
-    },
-    
+    },    
     
     date: {
         type: Date,
@@ -29,7 +23,7 @@ const appointmentSchema = new mongoose.Schema(
     },
     status: {
         type: String,
-        enum: ["Booked", "Checked-In", "Completed", "Cancelled"],
+        enum: ["Booked", "Completed", "Cancelled"],
       default: "Booked",
     },
   },

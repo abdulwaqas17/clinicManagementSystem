@@ -15,10 +15,10 @@ const getDoctorBookedSlots = async (req, res) => {
     }
 
     // Find booked or checked-in appointments for this doctor
-    const appointments = await Appointment.find({
-      doctor: doctorId,
-      status: { $in: ["Booked", "Checked-In"] },
-    }).select("date timeSlot -_id");
+  const appointments = await Appointment.find({
+  doctor: doctorId,
+  status: "Booked",
+}).select("date timeSlot -_id");
 
     // If no appointments found
     if (!appointments || appointments.length === 0) {
