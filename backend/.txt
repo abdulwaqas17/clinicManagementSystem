@@ -1,0 +1,21 @@
+ab jab user dashborad pr aye ga o us ko data dikhnay k lien data fetach hoga is k lien controller fucntion aur middleware bna kr do routr protected hoga
+check krna ager req.user.role ager admin ho to sary user fetch hon user model m se srif khud admin k ilawa
+sary apponitment fetch hon aur jis ka appintment ho wo user bhi populate kr dena,user ki deatil k lien. 
+sary rooms fectch hon
+user (admin) ki kuhd ki profile/obj fetch ho user model m se
+user ki srif apni (admin) case history fecth ho, id ki base pr caseHistory mdoel m se
+
+aur ager req.user.role doctor hoto
+srif us doctor k sary appointment fect hn apponimts modle m se id (doctor) ki base pr, phir jis user ka wo appoirmet h us ko abhi populate kr dena aur use user ki caseHistory bhi populate krdena doctor ko dikhan k lien,
+aur us user ki apni deatil fectch ho user model m se
+
+ager req.user.role receptionsit ho to, 
+sary apponitment fetch hon aur jis ka appintment ho wo user bhi populate kr dena,user ki deatil k lien
+saray users fetch hon, jinka role user h bus wo
+caseHistory fetch ko sirf isi receptionsit ki id ki base pr caseHistory mdoel m se
+aur us user ki apni deatil fectch ho user model m se
+
+ager req.user.role user hoto 
+us k saray appintment fectch ho apponitments model m se id ki base pr (user)
+user ki caseHistory show ho caseHistory model m se id ki base pr
+aur us user ki apni deatil fectch ho user model m se
