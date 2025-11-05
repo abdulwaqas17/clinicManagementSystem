@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema(
     // Doctor-specific fields
     doctorInfo: {
       specialization: { type: String },
+      doctorRoom: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Room",
+        required: true,
+      },
       experience: { type: Number },
       consultationFee: { type: Number },
       schedule: [
@@ -47,8 +52,6 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
-
- 
   },
   { timestamps: true }
 );

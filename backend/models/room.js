@@ -11,13 +11,6 @@ const roomSchema = new mongoose.Schema(
       default: "available",
     },
     
-    
-    // Doctor currently using the room
-    doctorAssign : [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // reference to doctor
-      required : [true, "Room must be assigned to a doctor"]
-}],
 
   },
   { timestamps: true }

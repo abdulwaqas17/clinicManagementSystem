@@ -7,12 +7,12 @@ const Room = require("../../models/room");
 const getDashboardData = async (req, res) => {
   try {
     const loggedInUser = req.user;
-    console.log('====================================');
+    console.log("====================================");
     console.log(loggedInUser);
     console.log(loggedInUser._id);
     console.log(loggedInUser.id);
-    
-    console.log('====================================');
+
+    console.log("====================================");
     const role = loggedInUser.role;
 
     let dashboardData = {};
@@ -25,7 +25,15 @@ const getDashboardData = async (req, res) => {
       // 2. All appointments with user populated
       const appointments = await Appointment.find()
         .populate("user", "firstName lastName email phone")
-        .populate("doctor", "firstName lastName email phone");
+        .populate({
+          path: "doctor",
+          select: "firstName lastName email phone doctorInfo",
+          populate: {
+            path: "doctorInfo.doctorRoom",
+            model: "Room",
+            select: "roomNumber name",
+          },
+        });
 
       // 3. All rooms
       const rooms = await Room.find();
@@ -40,7 +48,7 @@ const getDashboardData = async (req, res) => {
         .populate("doctor", "firstName lastName email phone")
         .populate("appointment", "date timeSlot");
 
-        // send data
+      // send data
       dashboardData = {
         users,
         appointments,
@@ -65,7 +73,15 @@ const getDashboardData = async (req, res) => {
             ],
           },
         })
-        .populate("doctor", "firstName lastName email phone");
+        .populate({
+          path: "doctor",
+          select: "firstName lastName email phone doctorInfo",
+          populate: {
+            path: "doctorInfo.doctorRoom",
+            model: "Room",
+            select: "roomNumber name",
+          },
+        });
 
       // 2. Doctor's profile
       const doctorProfile = await User.findById(loggedInUser._id);
@@ -82,7 +98,15 @@ const getDashboardData = async (req, res) => {
       // 1. All appointments with user populated
       const appointments = await Appointment.find()
         .populate("user", "firstName lastName email phone")
-        .populate("doctor", "firstName lastName email phone");
+        .populate({
+          path: "doctor",
+          select: "firstName lastName email phone doctorInfo",
+          populate: {
+            path: "doctorInfo.doctorRoom",
+            model: "Room",
+            select: "roomNumber name",
+          },
+        });
 
       // 2. All users (only role: user)
       const users = await User.find({ role: "user" });
@@ -145,5 +169,4 @@ const getDashboardData = async (req, res) => {
   }
 };
 
-
-module.exports = getDashboardData ;
+module.exports = getDashboardData;
