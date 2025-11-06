@@ -52,12 +52,12 @@ const userSchema = new mongoose.Schema(
       ],
     },
 
-    caseHistory: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "CaseHistory",
-      },
-    ],
+    // caseHistory: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "CaseHistory",
+    //   },
+    // ],
   },
   { timestamps: true }
 );

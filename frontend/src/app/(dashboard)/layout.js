@@ -46,6 +46,8 @@ export default function DashboardLayout({ children }) {
         setLoading(true);
         const token = localStorage.getItem("token");
         const data = await getDashboardData(token);
+        
+        toast.success("Dashboard data loaded!");
 
         setProfile(data.profile || null);
         setUsers(data.users || []);
@@ -55,7 +57,6 @@ export default function DashboardLayout({ children }) {
         setReceptionists(data.receptionists || []);
         setCaseHistory(data.caseHistory || []);
 
-        toast.success("Dashboard data loaded!");
       } catch (error) {
         toast.error(error.message || "Failed to load data");
       } finally {
@@ -73,7 +74,7 @@ export default function DashboardLayout({ children }) {
     { name: "Doctors", href: "/dashboard/doctors", icon: Stethoscope, roles: ["admin", "receptionist","user"] },
     { name: "Appointments", href: "/dashboard/appointments", icon: Calendar, roles: ["admin", "receptionist", "doctor","user"] },
     { name: "Rooms", href: "/dashboard/rooms", icon: Home, roles: ["admin", "receptionist"] },
-    { name: "Case History", href: "/dashboard/case-history", icon: FileText, roles: ["admin", "receptionist", "doctor","user"] },
+    { name: "Case History", href: "/dashboard/case-history", icon: FileText, roles: ["admin", "receptionist","user"] },
     { name: "Profile", href: "/dashboard/profile", icon: User, roles: ["admin", "receptionist", "doctor","user"] },
   ];
 

@@ -1,5 +1,7 @@
 'use client';
 
+import { useAppointmentContext } from '@/context/appointmentContext';
+import { useProfileContext } from '@/context/profileContext';
 import {
   Calendar,
   Clock,
@@ -19,7 +21,10 @@ import {
   DollarSign
 } from 'lucide-react';
 
-export default function DoctorDashboardOverview() {
+export default function DoctorOverview() {
+
+    const { profile } = useProfileContext();
+    const { appointments } = useAppointmentContext();
   // Mock doctor data
   const doctor = {
     name: "Dr. Sarah Johnson",
@@ -175,23 +180,23 @@ export default function DoctorDashboardOverview() {
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">{doctor.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{profile.firstName}</h1>
                 <div className="flex items-center space-x-1 bg-blue-100 px-3 py-1 rounded-full">
                   <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-sm font-medium text-blue-800">{doctor.rating}</span>
+                  <span className="text-sm font-medium text-blue-800">4.5</span>
                 </div>
               </div>
-              <p className="text-lg text-gray-600 mt-1">{doctor.specialty}</p>
-              <p className="text-gray-500 mt-2">{doctor.experience} experience • {doctor.education}</p>
+              <p className="text-lg text-gray-600 mt-1">{profile.doctorInfo.specialization}</p>
+              <p className="text-gray-500 mt-2">{profile.doctorInfo.experience} experience</p>
               
               <div className="flex items-center space-x-6 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Users className="w-4 h-4" />
-                  <span className="text-sm">{doctor.totalPatients.toLocaleString()} Patients</span>
+                  <span className="text-sm">{appointments.length} Patients</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Clock className="w-4 h-4" />
-                  <span className="text-sm">{doctor.availability}</span>
+                  <span className="text-sm">Mon, Wed, Fri</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
@@ -202,11 +207,11 @@ export default function DoctorDashboardOverview() {
               <div className="flex items-center space-x-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm">{doctor.contact.phone}</span>
+                  <span className="text-sm">{profile.phone}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Mail className="w-4 h-4" />
-                  <span className="text-sm">{doctor.contact.email}</span>
+                  <span className="text-sm">{profile.email}</span>
                 </div>
               </div>
             </div>
@@ -275,24 +280,23 @@ export default function DoctorDashboardOverview() {
               </button>
             </div>
             <div className="space-y-4">
-              {upcomingAppointments.map((appointment) => (
+              {appointments.map((appointment) => (
                 <div key={appointment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Users className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{appointment.patient}</p>
+                      <p className="font-medium text-gray-900">{appointment.user.firstName}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-sm text-gray-500">{appointment.type}</span>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-sm text-gray-500">{appointment.condition}</span>
+                        <span className="text-sm text-gray-500">{appointment.date}</span>
+               
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">{appointment.time}</p>
-                    <p className="text-sm text-gray-500">{appointment.duration}</p>
+                    <p className="font-medium text-gray-900">{appointment.timeSlot.startTime}</p>
+                    <p className="text-sm text-gray-500">30 mins</p>
                     <div className="flex items-center space-x-1 justify-end mt-1">
                       {getStatusIcon(appointment.status)}
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
@@ -378,7 +382,7 @@ export default function DoctorDashboardOverview() {
           </div>
 
           {/* Weekly Performance */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          {/* <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Performance</h3>
             <div className="space-y-3">
               {weeklyPerformance.map((day, index) => (
@@ -397,7 +401,7 @@ export default function DoctorDashboardOverview() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

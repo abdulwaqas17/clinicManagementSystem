@@ -79,13 +79,13 @@ const getDashboardData = async (req, res) => {
         .populate({
           path: "user",
           select: "firstName lastName email phone",
-          populate: {
-            path: "caseHistory",
-            populate: [
-              { path: "doctor", select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee" },
-              { path: "appointment", select: "date timeSlot" },
-            ],
-          },
+          // populate: {
+          //   path: "caseHistory",
+          //   populate: [
+          //     { path: "doctor", select: "firstName lastName doctorInfo.specialization doctorInfo.consultationFee" },
+          //     { path: "appointment", select: "date timeSlot" },
+          //   ],
+          // },
         })
         .populate({
           path: "doctor",

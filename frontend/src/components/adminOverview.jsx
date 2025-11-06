@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import {
   Users,
   Stethoscope,
@@ -14,32 +15,78 @@ import {
   CheckCircle2,
   CalendarClock
 } from 'lucide-react';
+import { useProfileContext } from '@/context/profileContext';
+import { useUsersContext } from '@/context/usersContext';
+import { useRoomContext } from '@/context/roomContext';
+import { useAppointmentContext } from '@/context/appointmentContext';
+import { useDoctorContext } from '@/context/doctorContext';
+import { useReceptionistContext } from '@/context/receptionistContext';
+// import { useCaseHistoryContext } from '@/context/caseHistoryContext';
+
 
 export default function AdminDashboardOverview() {
-  const stats = {
-    totalPatients: 1247,
-    totalDoctors: 24,
-    appointmentsToday: 18,
-    availableRooms: 12,
-    revenue: 125430,
-    pendingTasks: 8
-  };
+  // 🧠 Contexts se data lena
+  const { profile } = useProfileContext();
+  const { users } = useUsersContext(); // patients
+  const { rooms } = useRoomContext();
+  const { appointments } = useAppointmentContext();
+  const { doctors } = useDoctorContext();
+  const { receptionists } = useReceptionistContext();
 
-  const recentAppointments = [
-    { id: 1, patient: 'John Smith', doctor: 'Dr. Sarah Johnson', time: '10:00 AM', status: 'Completed' },
-    { id: 2, patient: 'Emma Wilson', doctor: 'Dr. Mike Chen', time: '11:30 AM', status: 'In Progress' },
-    { id: 3, patient: 'Robert Brown', doctor: 'Dr. Lisa Wang', time: '2:15 PM', status: 'Scheduled' },
-    { id: 4, patient: 'Sarah Davis', doctor: 'Dr. James Miller', time: '3:45 PM', status: 'Scheduled' },
-  ];
+  console.log('====================================');
+  console.log(profile);
+  console.log(users);
+  console.log(rooms);
+  console.log(doctors);
+  console.log(receptionists);
+  console.log(appointments);
+  console.log('====================================');
 
-  const topDoctors = [
-    { name: 'Dr. Sarah Johnson', specialty: 'Cardiology', patients: 156, rating: 4.9 },
-    { name: 'Dr. Mike Chen', specialty: 'Neurology', patients: 142, rating: 4.8 },
-    { name: 'Dr. Lisa Wang', specialty: 'Pediatrics', patients: 138, rating: 4.9 },
-    { name: 'Dr. James Miller', specialty: 'Orthopedics', patients: 127, rating: 4.7 },
-  ];
+  
 
-  const getStatusIcon = (status) => {
+  // 🧮 Stats calculation (dynamic)
+  const stats = useMemo(() => ({
+    totalPatients: users?.length || 0,
+    totalDoctors: doctors?.length || 0,
+    totalReceptionist: receptionists?.length || 0,
+    allAppointments: appointments?.length || 0,
+    availableRooms: rooms?.length || 0,
+    pendingTasks: appointments?.filter(a => a.status === 'Pending')?.length || 0,
+  }), [users, doctors, appointments, rooms]);
+
+  // 🔹 Dynamic Recent Appointments
+  // const recentAppointments = useMemo(
+  //   () =>
+  //     appointments
+  //       ?.slice(-4)
+  //       .reverse()
+  //       .map((a, i) => ({
+  //         id: i + 1,
+  //         patient: a.patientName || 'Unknown Patient',
+  //         doctor: a.doctorName || 'Unknown Doctor',
+  //         time: a.time || 'N/A',
+  //         status: a.status || 'Scheduled',
+  //       })) || [],
+  //   [appointments]
+  // );
+
+  // // 🔹 Dynamic Top Doctors
+  // const topDoctors = useMemo(
+  //   () =>
+  //     doctors
+  //       ?.sort((a, b) => (b.patientsSeen || 0) - (a.patientsSeen || 0))
+  //       .slice(0, 4)
+  //       .map(d => ({
+  //         name: d.name,
+  //         specialty: d.specialty || 'General',
+  //         patients: d.patientsSeen || 0,
+  //         rating: d.rating || 4.5,
+  //       })) || [],
+  //   [doctors]
+  // );
+
+  // 🔹 Status helpers
+  const getStatusIcon = status => {
     switch (status) {
       case 'Completed':
         return <CheckCircle2 className="w-4 h-4 text-green-500" />;
@@ -52,7 +99,7 @@ export default function AdminDashboardOverview() {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
       case 'Completed':
         return 'bg-green-100 text-green-800';
@@ -71,18 +118,24 @@ export default function AdminDashboardOverview() {
       <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Welcome back, Dr. Sarah! 👋</h1>
-            <p className="text-blue-100 mt-2">Here's what's happening at your clinic today.</p>
+            <h1 className="text-2xl font-bold">
+              Welcome back, {profile?.name || 'Admin'}! 👋
+            </h1>
+            <p className="text-blue-100 mt-2">
+              Here's what's happening at your clinic today.
+            </p>
           </div>
           <div className="hidden md:block">
             <div className="text-right">
               <p className="text-blue-200">Today's Date</p>
-              <p className="text-xl font-semibold">{new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</p>
+              <p className="text-xl font-semibold">
+                {new Date().toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
             </div>
           </div>
         </div>
@@ -90,124 +143,96 @@ export default function AdminDashboardOverview() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Total Patients */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
+        {[
+          {
+            title: 'Total Patients',
+            value: stats.totalPatients,
+            icon: <Users className="w-6 h-6 text-blue-600" />,
+            bg: 'bg-blue-100',
+          },
+          {
+            title: 'Total Doctors',
+            value: stats.totalDoctors,
+            icon: <Stethoscope className="w-6 h-6 text-green-600" />,
+            bg: 'bg-green-100',
+          },
+          {
+            title: 'Medical Staff',
+            value: stats.totalReceptionist,
+            icon: <Stethoscope className="w-6 h-6 text-green-600" />,
+            bg: 'bg-green-100',
+          },
+          {
+            title: "Today's Appointments",
+            value: stats.allAppointments,
+            icon: <Calendar className="w-6 h-6 text-orange-600" />,
+            bg: 'bg-orange-100',
+          },
+          {
+            title: 'Available Rooms',
+            value: stats.availableRooms,
+            icon: <Home className="w-6 h-6 text-purple-600" />,
+            bg: 'bg-purple-100',
+          },
+          {
+            title: 'Monthly Revenue',
+            value: "21,000",
+            icon: <DollarSign className="w-6 h-6 text-green-600" />,
+            bg: 'bg-green-100',
+          }
+        ].map((card, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex items-center justify-between"
+          >
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Patients</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalPatients.toLocaleString()}</p>
-              <div className="flex items-center text-xs text-green-600 mt-1">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                12% from last month
-              </div>
+              <p className="text-sm font-medium text-gray-600">{card.title}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">
+                {card.value}
+              </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className={`w-12 h-12 ${card.bg} rounded-lg flex items-center justify-center`}>
+              {card.icon}
             </div>
           </div>
-        </div>
-
-        {/* Total Doctors */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Medical Staff</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalDoctors}</p>
-              <p className="text-xs text-blue-600 mt-1">4 specialists</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Stethoscope className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        {/* Today's Appointments */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.appointmentsToday}</p>
-              <p className="text-xs text-orange-600 mt-1">2 pending</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-orange-600" />
-            </div>
-          </div>
-        </div>
-
-        {/* Available Rooms */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Available Rooms</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.availableRooms}</p>
-              <p className="text-xs text-gray-600 mt-1">of 15 total</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Home className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        {/* Monthly Revenue */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Monthly Revenue</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">${stats.revenue.toLocaleString()}</p>
-              <div className="flex items-center text-xs text-green-600 mt-1">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                8.2% growth
-              </div>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        {/* Pending Tasks */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pending Tasks</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stats.pendingTasks}</p>
-              <p className="text-xs text-red-600 mt-1">3 high priority</p>
-            </div>
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <CheckSquare className="w-6 h-6 text-red-600" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
+      {/* Recent Appointments & Top Doctors */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Appointments */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Appointments</h3>
-            <button className="flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium">
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Recent Appointments
+            </h3>
           </div>
           <div className="space-y-4">
-            {recentAppointments.map((appointment) => (
-              <div key={appointment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            {appointments.map(appointment => (
+              <div
+                key={appointment._id}
+                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Users className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{appointment.patient}</p>
-                    <p className="text-sm text-gray-500">{appointment.doctor}</p>
+                    <p className="font-medium text-gray-900">
+                      {appointment.user.firstName} {appointment.user.lastName}
+                    </p>
+                    <p className="text-sm text-gray-500">{appointment.doctor.firstName}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">{appointment.time}</p>
+                  <p className="font-medium text-gray-900">{appointment.timeSlot.startTime}</p>
                   <div className="flex items-center space-x-1 mt-1">
                     {getStatusIcon(appointment.status)}
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        appointment.status
+                      )}`}
+                    >
                       {appointment.status}
                     </span>
                   </div>
@@ -220,29 +245,32 @@ export default function AdminDashboardOverview() {
         {/* Top Doctors */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Top Performing Doctors</h3>
-            <button className="flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium">
-              View All
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Top Performing Doctors
+            </h3>
           </div>
           <div className="space-y-4">
-            {topDoctors.map((doctor, index) => (
-              <div key={doctor.name} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            {doctors.map((doctor, index) => (
+              <div
+                key={doctor._id}
+                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{doctor.name}</p>
-                    <p className="text-sm text-gray-500">{doctor.specialty}</p>
+                    <p className="font-medium text-gray-900">{doctor.firstName}</p>
+                    <p className="text-sm text-gray-500">{doctor.specialization}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">{doctor.patients} patients</p>
+                  <p className="font-medium text-gray-900">
+                    239 patients
+                  </p>
                   <div className="flex items-center space-x-1 justify-end mt-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600">{doctor.rating}</span>
+                    <span className="text-sm text-gray-600">4.7</span>
                   </div>
                 </div>
               </div>

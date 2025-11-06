@@ -1,5 +1,7 @@
 'use client';
 
+import { useAppointmentContext } from '@/context/appointmentContext';
+import { useProfileContext } from '@/context/profileContext';
 import {
   Calendar,
   Clock,
@@ -21,6 +23,10 @@ import {
 } from 'lucide-react';
 
 export default function UserDashboardOverview() {
+
+     const { profile } = useProfileContext();
+      const { appointments } = useAppointmentContext();
+
   // Mock user data
   const user = {
     name: "John Smith",
@@ -220,7 +226,7 @@ export default function UserDashboardOverview() {
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{profile.firstName}</h1>
                 <div className="flex items-center space-x-1 bg-green-100 px-3 py-1 rounded-full">
                   <span className="text-sm font-medium text-green-800">Patient</span>
                 </div>
@@ -228,40 +234,40 @@ export default function UserDashboardOverview() {
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm">{user.age} years, {user.gender}</span>
+                  <profile className="w-4 h-4" />
+                  <span className="text-sm">18 years, {profile.gender}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Heart className="w-4 h-4" />
-                  <span className="text-sm">Blood Group: {user.bloodGroup}</span>
+                  <span className="text-sm">Blood Group: A</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Stethoscope className="w-4 h-4" />
-                  <span className="text-sm">Dr. {user.primaryPhysician}</span>
+                  <span className="text-sm">Dr. Maaz</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <CalendarClock className="w-4 h-4" />
-                  <span className="text-sm">Last Visit: {formatDate(user.lastVisit)}</span>
+                  <span className="text-sm">Last Visit: 8 May 2025</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm">{user.contact.phone}</span>
+                  <span className="text-sm">{profile.phone}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Mail className="w-4 h-4" />
-                  <span className="text-sm">{user.contact.email}</span>
+                  <span className="text-sm">{profile.email}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600 md:col-span-2">
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm">{user.contact.address}</span>
+                  <span className="text-sm">{profile.address}</span>
                 </div>
               </div>
 
               {/* Emergency Contact */}
-              <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+              {/* <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
                 <div className="flex items-center space-x-2">
                   <AlertCircle className="w-4 h-4 text-red-500" />
                   <span className="text-sm font-medium text-red-800">Emergency Contact</span>
@@ -270,7 +276,7 @@ export default function UserDashboardOverview() {
                   <span className="text-sm text-gray-700">{user.emergencyContact.name} ({user.emergencyContact.relationship})</span>
                   <span className="text-sm text-gray-600">{user.emergencyContact.phone}</span>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -357,27 +363,26 @@ export default function UserDashboardOverview() {
               </button>
             </div>
             <div className="space-y-4">
-              {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+              {appointments.map((appointment) => (
+                <div key={appointment._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Stethoscope className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{appointment.doctor}</p>
+                      <p className="font-medium text-gray-900">{appointment.doctor.firstName}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-sm text-gray-500">{appointment.specialty}</span>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-sm text-gray-500">{appointment.reason}</span>
+                        <span className="text-sm text-gray-500">{appointment.doctor.specialization}</span>
+                      
                       </div>
                       <div className="flex items-center space-x-2 mt-1">
                         <Calendar className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{formatDate(appointment.date)} at {appointment.time}</span>
+                        <span className="text-xs text-gray-500">{formatDate(appointment.date)} at {appointment.timeSlot.startTime}</span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">{appointment.duration}</p>
+                    <p className="font-medium text-gray-900">30 mins</p>
                     <div className="flex items-center space-x-1 justify-end mt-1">
                       {getStatusIcon(appointment.status)}
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>

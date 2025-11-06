@@ -234,3 +234,9 @@ const getDashboardData = async (req, res) => {
 module.exports = getDashboardData;
 
 
+
+
+
+name,specialization,experience,shedule(only days),phone,email
+
+appoiments ko dynamic
