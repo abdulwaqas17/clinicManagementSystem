@@ -14,10 +14,7 @@ const registerUser = async (req, res) => {
       password,
       gender,
       date_of_birth,
-      address,
-      city,
-      country,
-      role,
+      address
     } = req.body;
 
     //  Basic required fields check
@@ -28,10 +25,7 @@ const registerUser = async (req, res) => {
       !password ||
       !gender ||
       !date_of_birth ||
-      !address ||
-      !city ||
-      !country ||
-      !role
+      !address 
     ) {
       return res.status(400).json({
         success: false,
@@ -96,10 +90,8 @@ const registerUser = async (req, res) => {
       date_of_birth,
       gender,
       address,
-      city,
-      country,
       profileImage: uploadedImageUrl,
-      role,
+      role : "user" // patient role
     });
 
     await newUser.save();

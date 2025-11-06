@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema(
       required: [true, "Date of Birth is required"],
     },
     address: { type: String, required: [true, "Address is required"] },
-    city: { type: String, required: [true, "City is required"] },
-    country: { type: String, required: [true, "Country is required"] },
+    city: { type: String},
+    country: { type: String},
     profileImage: { type: String, default: "" }, // for all users
 
     role: {
@@ -39,8 +39,7 @@ const userSchema = new mongoose.Schema(
       specialization: { type: String },
       doctorRoom: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Room",
-        required: true,
+        ref: "Room"
       },
       experience: { type: Number },
       consultationFee: { type: Number },
@@ -52,6 +51,13 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
+
+    caseHistory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CaseHistory",
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -66,7 +72,8 @@ userSchema.pre("save", function (next) {
       docInfo.experience == null ||
       docInfo.consultationFee == null ||
       !docInfo.schedule ||
-      docInfo.schedule.length === 0
+      docInfo.schedule.length === 0 ||
+      !docInfo.doctorRoom
     ) {
       const err = new Error(
         "All doctor fields are required for users with role 'doctor'"

@@ -9,7 +9,7 @@ const getDashboardData = async (req, res) => {
     const loggedInUser = req.user;
     console.log("====================================");
     console.log(loggedInUser);
-    console.log(loggedInUser._id);
+    console.log(loggedInUser.id);
     console.log(loggedInUser.id);
 
     console.log("====================================");
@@ -25,8 +25,15 @@ const getDashboardData = async (req, res) => {
 
     // Admin
     if (role === "admin") {
-      // 1. All users except admin
-      const users = await User.find({ _id: { $ne: loggedInUser.id } });
+      const doctors = await User.find({ role: "doctor" }).populate({
+        path: "doctorInfo.doctorRoom",
+        select: "roomNumber name",
+      });
+
+            // 2. All users (only role: user)
+      const users = await User.find({ role: "user" });
+
+      const receptionists = await User.find({ role: "receptionist" });
 
       // 2. All appointments with user populated
       const appointments = await Appointment.find()
@@ -49,14 +56,15 @@ const getDashboardData = async (req, res) => {
 
       // 5. Admin's case history
       const adminCaseHistory = await CaseHistory.find({
-        user: loggedInUser._id,
+        user: loggedInUser.id,
       })
         .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
       // send data
       dashboardData = {
-        users,
+        users, receptionists,
+        doctors,
         appointments,
         rooms,
         profile: adminProfile,
@@ -67,7 +75,7 @@ const getDashboardData = async (req, res) => {
     // Doctor
     else if (role === "doctor") {
       // 1. Doctor's appointments with user populated
-      const appointments = await Appointment.find({ doctor: loggedInUser._id })
+      const appointments = await Appointment.find({ doctor: loggedInUser.id })
         .populate({
           path: "user",
           select: "firstName lastName email phone",
@@ -90,7 +98,7 @@ const getDashboardData = async (req, res) => {
         });
 
       // 2. Doctor's profile
-      const doctorProfile = await User.findById(loggedInUser._id);
+      const doctorProfile = await User.findById(loggedInUser.id);
 
       // send data
       dashboardData = {
@@ -124,13 +132,13 @@ const getDashboardData = async (req, res) => {
 
       // 3. Case history of this receptionist
       const receptionistCaseHistory = await CaseHistory.find({
-        user: loggedInUser._id,
+        user: loggedInUser.id,
       })
         .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
       // 4. Receptionist profile
-      const receptionistProfile = await User.findById(loggedInUser._id);
+      const receptionistProfile = await User.findById(loggedInUser.id);
 
       // send data
       dashboardData = {
@@ -152,18 +160,18 @@ const getDashboardData = async (req, res) => {
 
       // 1. User's appointments
       const appointments = await Appointment.find({
-        user: loggedInUser._id,
+        user: loggedInUser.id,
       }).populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee");
 
       // 2. User's case history
       const userCaseHistory = await CaseHistory.find({
-        user: loggedInUser._id,
+        user: loggedInUser.id,
       })
-        .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
+        .populate("doctor", "firstName lastName doctorInfo.specialization ")
         .populate("appointment", "date timeSlot");
 
       // 3. User profile
-      const userProfile = await User.findById(loggedInUser._id);
+      const userProfile = await User.findById(loggedInUser.id);
 
       // send data
       dashboardData = {
