@@ -5,7 +5,7 @@ const uploadToCloudinary = require("../../config/cloudinary");
 // POST /api/users/invite
 const inviteUser = async (req, res) => {
   try {
-    const {
+    let {
       firstName,
       lastName,
       email,
@@ -17,6 +17,12 @@ const inviteUser = async (req, res) => {
       role,
       doctorInfo,
     } = req.body;
+
+    
+    // Parse doctorInfo if it's stringified
+if (doctorInfo && typeof doctorInfo === "string") {
+  doctorInfo = JSON.parse(doctorInfo);
+}
 
     // Check if current user (from middleware) is admin
     const currentUser = req.user; // From auth middleware
@@ -43,6 +49,20 @@ const inviteUser = async (req, res) => {
           message: "All required fields must be filled",
         });
     }
+
+    console.log('====================================');
+    console.log( firstName,
+      lastName,
+      email,
+      phone,
+      gender,
+      date_of_birth,
+      address,
+
+      role,
+      doctorInfo);
+    console.log('====================================');
+
 
     // Doctor-specific validation
     if (role === "doctor") {

@@ -24,6 +24,7 @@ import { useProfileContext } from "@/context/profileContext";
 import toast from "react-hot-toast";
 import NotFound from "@/app/not-found";
 import { inviteReceptionist } from "@/services/addMemberServices";
+import { AddUserModal } from "./inviteModal";
 
 
 export default function ReceptionistManagement() {
@@ -382,12 +383,12 @@ export default function ReceptionistManagement() {
         )}
       </div>
 
-        <AddReceptionistModal
+        <AddUserModal
           isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false);
           }}
-          
+          role="receptionist"
       
         />
       
@@ -395,169 +396,3 @@ export default function ReceptionistManagement() {
   );
 }
 
-
-
-export function AddReceptionistModal({ isOpen, onClose }) {
-    const { receptionists,setReceptionists } = useReceptionistContext();
-
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    gender: "",
-    date_of_birth: "",
-    address: "",
-    profileImage: null,
-  });
-
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("User not authenticated");
-      }
-      const payload = { ...formData, role: "receptionist" };
-
-      const res = await inviteReceptionist(payload, token);
-      toast.success(res.message || "Receptionist invited successfully");
-
-      setReceptionists((prev) => [...prev, res.user]);
-      onClose();
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        gender: "",
-        date_of_birth: "",
-        address: "",
-        profileImage: null,
-      });
-
-    } catch (error) {
-      toast.error(error.message || "Failed to invite receptionist");
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-lg relative">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">
-          Add New Receptionist
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-              className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              required
-              className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-
-            <input
-              type="date"
-              name="date_of_birth"
-              value={formData.date_of_birth}
-              onChange={handleChange}
-              required
-              className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <textarea
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            className="border rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <input
-            type="file"
-            name="profileImage"
-            accept="image/*"
-            onChange={handleChange}
-            className="w-full text-sm text-gray-600"
-          />
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-            >
-              Invite
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}

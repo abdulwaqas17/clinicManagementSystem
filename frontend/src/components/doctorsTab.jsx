@@ -23,8 +23,10 @@ import {
 // Import your actual doctor context
 import { useDoctorContext } from '@/context/doctorContext';
 import { useProfileContext } from '@/context/profileContext';
+import { AddUserModal } from './inviteModal';
 
 export default function DoctorsManagement() {
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { doctors } = useDoctorContext();
    const { profile } = useProfileContext();
   const [searchTerm, setSearchTerm] = useState('');
@@ -136,7 +138,7 @@ export default function DoctorsManagement() {
         </div>
         {
           profile?.role === 'admin' &&
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <button onClick={()=> setIsAddModalOpen(true)} className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" />
           <span>Add New Doctor</span>
         </button>
@@ -263,13 +265,7 @@ export default function DoctorsManagement() {
                     </div>
                   </div>
 
-                  {/* Location */}
-                  {doctor.city && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span>{doctor.city}{doctor.country && `, ${doctor.country}`}</span>
-                    </div>
-                  )}
+               
 
                   {/* Availability */}
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -330,285 +326,14 @@ export default function DoctorsManagement() {
         </div>
       )}
 
-      {/* Edit Doctor Modal */}
-      {isEditModalOpen && selectedDoctor && (
-        <EditDoctorModal
-          doctor={selectedDoctor}
-          onSave={handleSaveEdit}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedDoctor(null);
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-// Edit Doctor Modal Component
-function EditDoctorModal({ doctor, onSave, onClose }) {
-  const [formData, setFormData] = useState({
-    firstName: doctor.firstName || '',
-    lastName: doctor.lastName || '',
-    email: doctor.email || '',
-    phone: doctor.phone || '',
-    date_of_birth: doctor.date_of_birth ? new Date(doctor.date_of_birth).toISOString().split('T')[0] : '',
-    gender: doctor.gender || 'male',
-    address: doctor.address || '',
-    city: doctor.city || '',
-    country: doctor.country || '',
-    status: doctor.status || 'active',
-    doctorInfo: {
-      specialization: doctor.doctorInfo?.specialization || '',
-      experience: doctor.doctorInfo?.experience || 0,
-      consultationFee: doctor.doctorInfo?.consultationFee || 0,
-      schedule: doctor.doctorInfo?.schedule || []
-    }
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave({ ...doctor, ...formData });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name.startsWith('doctorInfo.')) {
-      const doctorInfoField = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        doctorInfo: {
-          ...prev.doctorInfo,
-          [doctorInfoField]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Edit Doctor</h2>
-          <p className="text-gray-600 mt-1">Update doctor information</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Name *
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+       <AddUserModal
+              isOpen={isAddModalOpen}
+              onClose={() => {
+                setIsAddModalOpen(false);
+              }}
+              role="doctor"
+          
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gender *
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Specialization *
-              </label>
-              <input
-                type="text"
-                name="doctorInfo.specialization"
-                value={formData.doctorInfo.specialization}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Experience (Years) *
-              </label>
-              <input
-                type="number"
-                name="doctorInfo.experience"
-                value={formData.doctorInfo.experience}
-                onChange={handleChange}
-                required
-                min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Consultation Fee ($) *
-              </label>
-              <input
-                type="number"
-                name="doctorInfo.consultationFee"
-                value={formData.doctorInfo.consultationFee}
-                onChange={handleChange}
-                required
-                min="0"
-                step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="active">Active</option>
-                <option value="invited">Invited</option>
-                <option value="disabled">Disabled</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                City
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Country
-              </label>
-              <input
-                type="text"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Address
-            </label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }

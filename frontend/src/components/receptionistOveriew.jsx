@@ -359,7 +359,7 @@ export default function ReceptionistDashboardOverview() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {rooms.map((room) => (
-                <div key={room.room} className="border border-gray-200 rounded-lg p-4 text-center">
+                <div key={room.name} className="border border-gray-200 rounded-lg p-4 text-center">
                   <div className="flex justify-center mb-2">
                     {getStatusIcon(room.status)}
                   </div>
@@ -386,7 +386,7 @@ export default function ReceptionistDashboardOverview() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Doctor Availability</h3>
             <div className="space-y-3">
               {doctors.map((doctor) => (
-                <div key={doctor.name} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div key={doctor.firstName} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <Stethoscope className="w-5 h-5 text-green-600" />
