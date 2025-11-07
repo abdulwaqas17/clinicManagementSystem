@@ -234,7 +234,7 @@ export default function UserDashboardOverview() {
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
-                  <profile className="w-4 h-4" />
+                  {/* <profile className="w-4 h-4" /> */}
                   <span className="text-sm">18 years, {profile.gender}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">

@@ -1,7 +1,6 @@
 const Appointment = require("../../models/appointment");
 const mongoose = require("mongoose");
 
-
 const getDoctorBookedSlots = async (req, res) => {
   try {
     const { doctorId } = req.params;
@@ -18,7 +17,7 @@ const getDoctorBookedSlots = async (req, res) => {
   const appointments = await Appointment.find({
   doctor: doctorId,
   status: "Booked",
-}).select("date timeSlot -_id");
+}).select("date timeSlot");
 
     // If no appointments found
     if (!appointments || appointments.length === 0) {

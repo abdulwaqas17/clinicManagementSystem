@@ -2,7 +2,7 @@ import { createRoom } from "@/services/roomServices";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-function RoomFormModal({ room, onClose, isEdit, setRooms }) {
+function RoomFormModal({ room, onClose, type, setRooms,isOpen }) {
   const [formData, setFormData] = useState({
     roomNumber: room?.roomNumber || "",
     name: room?.name || "",
@@ -42,8 +42,12 @@ function RoomFormModal({ room, onClose, isEdit, setRooms }) {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
+let res;
+      if (type == "add") {
+      
+        res = await createRoom(formData, token);
+      }
 
-      const res = await createRoom(formData, token);
 
       if (res.success) {
         toast.success(res.message || "Room created successfully");
@@ -64,10 +68,10 @@ function RoomFormModal({ room, onClose, isEdit, setRooms }) {
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">
-            {isEdit ? "Edit Room" : "Add New Room"}
+            {type== "edit" ? "Edit Room" : "Add New Room"}
           </h2>
           <p className="text-gray-600 mt-1">
-            {isEdit ? "Update room information" : "Enter room details"}
+            {type== "edit" ? "Update room information" : "Enter room details"}
           </p>
         </div>
 
@@ -151,7 +155,7 @@ function RoomFormModal({ room, onClose, isEdit, setRooms }) {
               {loading ? (
                 <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4 mr-2"></span>
               ) : null}
-              {isEdit ? "Update Room" : "Add Room"}
+              {type== "edit" ? "Update Room" : "Add Room"}
             </button>
           </div>
         </form>

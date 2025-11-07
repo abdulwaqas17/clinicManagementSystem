@@ -18,9 +18,10 @@ import {
 // Import your actual contexts
 import { useRoomContext } from '@/context/roomContext';
 import { useProfileContext } from '@/context/profileContext';
+import RoomFormModal from './RoomModal';
 
 export default function RoomsManagement() {
-  const { rooms } = useRoomContext();
+  const { rooms ,setRooms} = useRoomContext();
   const { profile } = useProfileContext();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,7 +91,7 @@ export default function RoomsManagement() {
   // Handle edit room (admin only)
   const handleEdit = useCallback((room) => {
     setSelectedRoom(room);
-    setIsEditModalOpen(true);
+    setIsAddModalOpen(true);
   }, []);
 
   // Handle save room (both add and edit)
@@ -321,16 +322,15 @@ export default function RoomsManagement() {
       )}
 
       {/* Add/Edit Room Modal */}
-      {(isAddModalOpen || isEditModalOpen) && (
+      {isAddModalOpen  && (
         <RoomFormModal
           room={selectedRoom}
-          onSave={handleSaveRoom}
+          setRooms={setRooms}
+          isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false);
-            setIsEditModalOpen(false);
-            setSelectedRoom(null);
           }}
-          isEdit={!!selectedRoom}
+          type="add"
         />
       )}
     </div>

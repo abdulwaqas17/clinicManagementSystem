@@ -19,12 +19,15 @@ import {
 } from 'lucide-react';
 import { useAppointmentContext } from '@/context/appointmentContext';
 import { useProfileContext } from '@/context/profileContext';
+import BookAppointmentModal from './BookAppointmentModal';
 
 
 
 export default function AppointmentsManagement() {
   const { appointments } = useAppointmentContext();
+  
   const { profile } = useProfileContext();
+  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -34,7 +37,8 @@ export default function AppointmentsManagement() {
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
 
   // Filter and search appointments
-  const filteredAppointments = useMemo(() => {
+const filteredAppointments = useMemo(() => {
+
     if (!appointments || !Array.isArray(appointments)) return [];
 
     let result = [...appointments];
@@ -119,19 +123,6 @@ export default function AppointmentsManagement() {
     }));
   }, []);
 
-  // Handle edit appointment
-  const handleEdit = useCallback((appointment) => {
-    setSelectedAppointment(appointment);
-    setIsEditModalOpen(true);
-  }, []);
-
-  // Handle delete appointment
-  const handleDelete = useCallback((appointmentId) => {
-    if (window.confirm('Are you sure you want to delete this appointment?')) {
-      // Here you would typically delete the appointment
-      console.log('Delete appointment:', appointmentId);
-    }
-  }, []);
 
   // Handle check appointment (for doctors)
   const handleCheckAppointment = useCallback((appointment) => {
@@ -140,11 +131,26 @@ export default function AppointmentsManagement() {
     alert(`Checking appointment for ${appointment.user?.firstName} ${appointment.user?.lastName}`);
   }, []);
 
-  // Handle book new appointment
+   // Handle book new appointment
   const handleBookAppointment = useCallback(() => {
-    // Here you would typically open a booking modal
-    console.log('Book new appointment');
-    alert('Open booking modal');
+    setIsBookModalOpen(true);
+  }, []);
+
+  // Handle close book modal
+  const handleCloseBookModal = useCallback(() => {
+    setIsBookModalOpen(false);
+  }, []);
+
+  // Handle final appointment booking
+  const handleFinalBookAppointment = useCallback((appointmentData) => {
+    // Here you would typically save the appointment to your backend
+    console.log('Booking appointment:', appointmentData);
+    
+    // Example of what you might do:
+    // await createAppointment(appointmentData);
+    // refreshAppointments(); // Refresh the appointments list
+    
+    alert('Appointment booked successfully!');
   }, []);
 
   // Get status icon and color
@@ -184,7 +190,7 @@ export default function AppointmentsManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+   {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Appointments Management</h1>
@@ -418,142 +424,12 @@ export default function AppointmentsManagement() {
         )}
       </div>
 
-      {/* Edit Appointment Modal */}
-      {isEditModalOpen && selectedAppointment && (
-        <EditAppointmentModal
-          appointment={selectedAppointment}
-          onSave={handleEdit}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedAppointment(null);
-          }}
-        />
-      )}
+    <BookAppointmentModal
+        isOpen={isBookModalOpen}
+        onClose={handleCloseBookModal}
+        onBookAppointment={handleFinalBookAppointment}
+      />
     </div>
   );
 }
 
-// Edit Appointment Modal Component
-function EditAppointmentModal({ appointment, onSave, onClose }) {
-  const [formData, setFormData] = useState({
-    date: appointment.date ? new Date(appointment.date).toISOString().split('T')[0] : '',
-    timeSlot: {
-      startTime: appointment.timeSlot?.startTime || '',
-      endTime: appointment.timeSlot?.endTime || ''
-    },
-    status: appointment.status || 'Booked'
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave({ ...appointment, ...formData });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name.startsWith('timeSlot.')) {
-      const timeSlotField = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        timeSlot: {
-          ...prev.timeSlot,
-          [timeSlotField]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Edit Appointment</h2>
-          <p className="text-gray-600 mt-1">Update appointment details</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date *
-            </label>
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Time *
-              </label>
-              <input
-                type="time"
-                name="timeSlot.startTime"
-                value={formData.timeSlot.startTime}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Time *
-              </label>
-              <input
-                type="time"
-                name="timeSlot.endTime"
-                value={formData.timeSlot.endTime}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="Booked">Booked</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
