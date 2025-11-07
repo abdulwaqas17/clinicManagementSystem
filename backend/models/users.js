@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const userSchema = new mongoose.Schema(
   {
     // Common fields for all users
@@ -18,10 +17,8 @@ const userSchema = new mongoose.Schema(
       required: [true, "Date of Birth is required"],
     },
     address: { type: String, required: [true, "Address is required"] },
-    city: { type: String},
-    country: { type: String},
     profileImage: { type: String, default: "" }, // for all users
-
+    
     role: {
       type: String,
       enum: ["user", "doctor", "admin", "receptionist"],
@@ -33,7 +30,7 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "invited", "disabled"],
       default: "active", // By default user active hoga
     },
-
+    
     // Doctor-specific fields
     doctorInfo: {
       specialization: { type: String },
@@ -51,17 +48,20 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
-
-    // caseHistory: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "CaseHistory",
-    //   },
-    // ],
+    
   },
   { timestamps: true }
 );
 
+// city: { type: String},
+// country: { type: String},
+
+// caseHistory: [
+//   {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "CaseHistory",
+//   },
+// ],
 // Custom validation for doctors
 userSchema.pre("save", function (next) {
   if (this.role === "doctor") {

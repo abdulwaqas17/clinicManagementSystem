@@ -1,5 +1,10 @@
 'use client';
 
+import { useAppointmentContext } from '@/context/appointmentContext';
+import { useDoctorContext } from '@/context/doctorContext';
+import { useProfileContext } from '@/context/profileContext';
+import { useRoomContext } from '@/context/roomContext';
+import { useUsersContext } from '@/context/usersContext';
 import {
   Users,
   Calendar,
@@ -22,6 +27,13 @@ import {
 } from 'lucide-react';
 
 export default function ReceptionistDashboardOverview() {
+
+   const { profile } = useProfileContext();
+     const { users } = useUsersContext(); // patients
+     const { rooms } = useRoomContext();
+     const { appointments } = useAppointmentContext();
+      const { doctors } = useDoctorContext();
+
   // Mock staff data
   const staff = {
     name: "Jennifer Wilson",
@@ -158,7 +170,7 @@ export default function ReceptionistDashboardOverview() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Confirmed':
-      case 'Available':
+      case 'available':
         return 'bg-green-100 text-green-800';
       case 'In Progress':
       case 'In Session':
@@ -195,9 +207,9 @@ export default function ReceptionistDashboardOverview() {
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">{staff.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{profile.firstName} {profile.lastName}</h1>
                 <div className="flex items-center space-x-1 bg-purple-100 px-3 py-1 rounded-full">
-                  <span className="text-sm font-medium text-purple-800">{staff.role}</span>
+                  <span className="text-sm font-medium text-purple-800">{profile.role}</span>
                 </div>
               </div>
               
@@ -212,27 +224,27 @@ export default function ReceptionistDashboardOverview() {
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Calendar className="w-4 h-4" />
-                  <span className="text-sm">Since {formatDate(staff.joinDate)}</span>
+                  <span className="text-sm">Since {formatDate(profile.createdAt)}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-600">
+                {/* <div className="flex items-center space-x-2 text-gray-600">
                   <Clock className="w-4 h-4" />
                   <span className="text-sm">{staff.schedule.shift}</span>
-                </div>
+                </div> */}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Phone className="w-4 h-4" />
-                  <span className="text-sm">{staff.contact.phone} (Ext: {staff.contact.extension})</span>
+                  <span className="text-sm">{profile.phone} </span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Mail className="w-4 h-4" />
-                  <span className="text-sm">{staff.contact.email}</span>
+                  <span className="text-sm">{profile.email}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-600">
+                {/* <div className="flex items-center space-x-2 text-gray-600">
                   <Clock className="w-4 h-4" />
                   <span className="text-sm">{staff.schedule.days}</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -249,12 +261,12 @@ export default function ReceptionistDashboardOverview() {
         {/* Left Column - Overview & Appointments */}
         <div className="lg:col-span-2 space-y-6">
           {/* Today's Overview Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Appointments</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{todayStats.totalAppointments}</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{appointments?.length}</p>
                 </div>
                 <Calendar className="w-8 h-8 text-blue-600" />
               </div>
@@ -264,7 +276,7 @@ export default function ReceptionistDashboardOverview() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Patients Today</p>
-                  <p className="text-2xl font-bold text-green-600 mt-1">{todayStats.totalPatients}</p>
+                  <p className="text-2xl font-bold text-green-600 mt-1">{users?.length}</p>
                 </div>
                 <Users className="w-8 h-8 text-green-600" />
               </div>
@@ -274,13 +286,13 @@ export default function ReceptionistDashboardOverview() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Available Rooms</p>
-                  <p className="text-2xl font-bold text-purple-600 mt-1">{todayStats.availableRooms}</p>
+                  <p className="text-2xl font-bold text-purple-600 mt-1">{rooms?.length}</p>
                 </div>
                 <Home className="w-8 h-8 text-purple-600" />
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+            {/* <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">New Patients</p>
@@ -288,7 +300,7 @@ export default function ReceptionistDashboardOverview() {
                 </div>
                 <UserCheck className="w-8 h-8 text-orange-600" />
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Today's Appointments */}
@@ -301,29 +313,29 @@ export default function ReceptionistDashboardOverview() {
               </button>
             </div>
             <div className="space-y-4">
-              {todaysAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+              {appointments.map((appointment) => (
+                <div key={appointment._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Users className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{appointment.patient}</p>
+                      <p className="font-medium text-gray-900">{appointment.user.firstName}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-sm text-gray-500">{appointment.doctor}</span>
+                        <span className="text-sm text-gray-500">{appointment.doctor.firstName}</span>
                         <span className="text-gray-300">•</span>
-                        <span className="text-sm text-gray-500">{appointment.type}</span>
+                        <span className="text-sm text-gray-500">{appointment.status}</span>
                       </div>
                       <div className="flex items-center space-x-2 mt-1">
-                        <Home className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{appointment.room}</span>
-                        <span className="text-gray-300">•</span>
-                        <span className="text-xs text-gray-500">{appointment.duration}</span>
+                        {/* <Home className="w-3 h-3 text-gray-400" /> */}
+                        {/* <span className="text-xs text-gray-500">{appointment.doctorInfo.doctorRoom.name}</span> */}
+                        {/* <span className="text-gray-300">•</span> */}
+                        <span className="text-xs text-gray-500">30 min</span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">{appointment.time}</p>
+                    <p className="font-medium text-gray-900">{appointment.timeSlot.startTime}</p>
                     <div className="flex items-center space-x-1 justify-end mt-1">
                       {getStatusIcon(appointment.status)}
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
@@ -346,21 +358,21 @@ export default function ReceptionistDashboardOverview() {
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {roomStatus.map((room) => (
+              {rooms.map((room) => (
                 <div key={room.room} className="border border-gray-200 rounded-lg p-4 text-center">
                   <div className="flex justify-center mb-2">
                     {getStatusIcon(room.status)}
                   </div>
-                  <p className="font-medium text-gray-900">Room {room.room}</p>
+                  <p className="font-medium text-gray-900">{room.name}</p>
                   <p className={`text-xs font-medium mt-1 ${getStatusColor(room.status)} px-2 py-1 rounded-full`}>
                     {room.status}
                   </p>
-                  {room.doctor !== '-' && (
+                  {/* {room.doctor !== '-' && (
                     <p className="text-xs text-gray-500 mt-1 truncate">{room.doctor}</p>
                   )}
                   {room.patient !== '-' && (
                     <p className="text-xs text-gray-400 mt-1 truncate">{room.patient}</p>
-                  )}
+                  )} */}
                 </div>
               ))}
             </div>
@@ -373,15 +385,15 @@ export default function ReceptionistDashboardOverview() {
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Doctor Availability</h3>
             <div className="space-y-3">
-              {doctorAvailability.map((doctor) => (
+              {doctors.map((doctor) => (
                 <div key={doctor.name} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <Stethoscope className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{doctor.name}</p>
-                      <p className="text-xs text-gray-500">{doctor.specialty}</p>
+                      <p className="text-sm font-medium text-gray-900">{doctor.firstName}</p>
+                      <p className="text-xs text-gray-500">{doctor.doctorInfo.specialization}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -391,7 +403,7 @@ export default function ReceptionistDashboardOverview() {
                         {doctor.status}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{doctor.patients} patients</p>
+                    <p className="text-xs text-gray-500 mt-1">290 patients</p>
                   </div>
                 </div>
               ))}

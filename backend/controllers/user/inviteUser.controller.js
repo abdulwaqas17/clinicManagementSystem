@@ -1,5 +1,6 @@
 const User = require("../../models/users");
 const nodemailer = require("nodemailer");
+const uploadToCloudinary = require("../../config/cloudinary");
 
 // POST /api/users/invite
 const inviteUser = async (req, res) => {
@@ -12,8 +13,7 @@ const inviteUser = async (req, res) => {
       gender,
       date_of_birth,
       address,
-      city,
-      country,
+
       role,
       doctorInfo,
     } = req.body;
@@ -34,8 +34,6 @@ const inviteUser = async (req, res) => {
       !gender ||
       !date_of_birth ||
       !address ||
-      !city ||
-      !country ||
       !role
     ) {
       return res
@@ -53,6 +51,7 @@ const inviteUser = async (req, res) => {
         !doctorInfo.specialization ||
         doctorInfo.experience == null ||
         doctorInfo.consultationFee == null ||
+        !doctorInfo.doctorRoom ||
         !doctorInfo.schedule ||
         doctorInfo.schedule.length === 0
       ) {
@@ -93,8 +92,7 @@ const inviteUser = async (req, res) => {
       gender,
       date_of_birth,
       address,
-      city,
-      country,
+
       role,
       status: "invited",
     profileImage: uploadedImageUrl,
@@ -120,7 +118,7 @@ const inviteUser = async (req, res) => {
       },
     });
 
-    const inviteLink = `http://localhost:5173/invite/${newUser._id}`;
+    const inviteLink = `http://localhost:3000/invite/${newUser._id}`;
 
     // Send email
     await transporter.sendMail({
@@ -139,7 +137,8 @@ const inviteUser = async (req, res) => {
     res.status(201).json({
       success: true,
       message: `Invitation sent to ${email}`,
-      userId: newUser._id,
+      user: newUser,
+      link : inviteLink
     });
   } catch (error) {
     console.error("Invite Error:", error);

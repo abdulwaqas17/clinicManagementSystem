@@ -1,10 +1,10 @@
-import AppointmentsManagement from '@/components/appointmentsTab'
+import RoomsManagement from '@/components/roomsTab'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      <AppointmentsManagement/>
+      <RoomsManagement/>
     </div>
   )
 }

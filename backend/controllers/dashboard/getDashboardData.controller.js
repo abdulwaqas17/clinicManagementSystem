@@ -114,6 +114,8 @@ const getDashboardData = async (req, res) => {
         select: "roomNumber name",
       });
 
+       const rooms = await Room.find();
+
       // 1. All appointments with user populated
       const appointments = await Appointment.find()
         .populate("user", "firstName lastName email phone")
@@ -144,6 +146,7 @@ const getDashboardData = async (req, res) => {
       dashboardData = {
         appointments,
         users,
+        rooms,
         doctors,
         caseHistory: receptionistCaseHistory,
         profile: receptionistProfile,

@@ -22,9 +22,11 @@ import {
 
 // Import your actual doctor context
 import { useDoctorContext } from '@/context/doctorContext';
+import { useProfileContext } from '@/context/profileContext';
 
 export default function DoctorsManagement() {
   const { doctors } = useDoctorContext();
+   const { profile } = useProfileContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [specializationFilter, setSpecializationFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -132,10 +134,13 @@ export default function DoctorsManagement() {
             {doctors?.length || 0} doctors in system
           </p>
         </div>
+        {
+          profile?.role === 'admin' &&
         <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" />
           <span>Add New Doctor</span>
         </button>
+        }
       </div>
 
       {/* Filters and Search Section */}
