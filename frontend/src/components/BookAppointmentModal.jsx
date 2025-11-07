@@ -17,13 +17,15 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useDoctorContext } from "@/context/doctorContext";
-import { getDoctorBookedSlots } from "@/services/appointmentService";
+import { bookAppointment, getDoctorBookedSlots } from "@/services/appointmentService";
+import toast from "react-hot-toast";
 
 // Book Appointment Modal Component
 export default function BookAppointmentModal({
   isOpen,
   onClose,
-  onBookAppointment,
+  setAppointments,
+  appointments
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -133,33 +135,7 @@ const formatTo12Hour = (time24) => {
     setCurrentStep(1);
   }, []);
 
-  // Handle date and time selection
-  const handleDateTimeSelect = useCallback(() => {
-    if (!selectedDate || !selectedTimeSlot) {
-      alert("Please select both date and time slot");
-      return;
-    }
-
-    const appointmentData = {
-      doctor: selectedDoctor._id,
-      date: selectedDate,
-      timeSlot: {
-        startTime: selectedTimeSlot,
-        endTime: getEndTime(selectedTimeSlot),
-      },
-      status: "Booked",
-    };
-
-    onBookAppointment(appointmentData);
-    onClose();
-  }, [
-    selectedDoctor,
-    selectedDate,
-    selectedTimeSlot,
-    getEndTime,
-    onBookAppointment,
-    onClose,
-  ]);
+ 
 
   // Format time for display
   const formatTimeDisplay = useCallback((timeString) => {
@@ -169,6 +145,41 @@ const formatTo12Hour = (time24) => {
     const formattedHour = hour % 12 || 12;
     return `${formattedHour}:${minutes} ${ampm}`;
   }, []);
+
+   // Book Appointment
+  const handleBookAppointment = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    if (!selectedDoctor || !selectedDate || !selectedTimeSlot) {
+      toast.error("Please select doctor, date, and time slot");
+      return;
+    }
+
+    try {
+      const timeSlot = {
+        startTime: formatTimeDisplay(selectedTimeSlot),
+        endTime: formatTimeDisplay(getEndTime(selectedTimeSlot)),
+      };
+
+      const res = await bookAppointment(selectedDoctor._id, selectedDate, timeSlot, token);
+
+      setAppointments([...appointments, res.data]);
+
+      setSelectedDate("");
+      setSelectedTimeSlot("");
+      setSelectedDoctor(null);
+      setCurrentStep(1);
+
+      toast.success("Appointment booked successfully!");
+      onClose(); // modal band karo
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -458,7 +469,7 @@ const formatTo12Hour = (time24) => {
                   <span>Back</span>
                 </button>
                 <button
-                  onClick={handleDateTimeSelect}
+                 onClick={handleBookAppointment}
                   disabled={!selectedDate || !selectedTimeSlot}
                   className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >

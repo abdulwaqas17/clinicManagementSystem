@@ -7,6 +7,10 @@ const bookAppointment = async (req, res) => {
     const loggedInUser = req.user; // from verifyToken middleware
     const { doctor, date, timeSlot } = req.body;
 
+    console.log('====================================');
+    console.log(doctor, date, timeSlot );
+    console.log('====================================');
+    
     // Basic validation
     if (!doctor || !date || !timeSlot || !timeSlot.startTime || !timeSlot.endTime) {
       return res.status(400).json({
@@ -26,7 +30,7 @@ const bookAppointment = async (req, res) => {
 
     // Check if doctor already has appointment booked for same date/time
     const existingAppointment = await Appointment.findOne({
-      user: loggedInUser._id,
+      user: loggedInUser.id,
       doctor,
       date: new Date(date),
       "timeSlot.startTime": timeSlot.startTime,

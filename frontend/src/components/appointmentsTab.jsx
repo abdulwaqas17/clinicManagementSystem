@@ -24,7 +24,7 @@ import BookAppointmentModal from './BookAppointmentModal';
 
 
 export default function AppointmentsManagement() {
-  const { appointments } = useAppointmentContext();
+  const { appointments ,setAppointments} = useAppointmentContext();
   
   const { profile } = useProfileContext();
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
@@ -428,6 +428,8 @@ const filteredAppointments = useMemo(() => {
         isOpen={isBookModalOpen}
         onClose={handleCloseBookModal}
         onBookAppointment={handleFinalBookAppointment}
+        setAppointments={setAppointments}
+        appointments={appointments}
       />
     </div>
   );
