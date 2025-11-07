@@ -17,6 +17,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useDoctorContext } from "@/context/doctorContext";
+import { getDoctorBookedSlots } from "@/services/appointmentService";
 
 // Book Appointment Modal Component
 export default function BookAppointmentModal({
@@ -29,6 +30,7 @@ export default function BookAppointmentModal({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+   const [bookedSlots, setBookedSlots] = useState([]);
 
   const { doctors } = useDoctorContext();
 
@@ -76,11 +78,55 @@ export default function BookAppointmentModal({
       .padStart(2, "0")}`;
   }, []);
 
-  // Handle doctor selection
-  const handleDoctorSelect = useCallback((doctor) => {
+  // jab doctor select ho to uske booked slots laen
+  const handleDoctorSelect = async (doctor) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("User not authenticated");
+        return;
+    }
     setSelectedDoctor(doctor);
     setCurrentStep(2);
-  }, []);
+
+    try {
+      const slots = await getDoctorBookedSlots(doctor._id, token);
+      setBookedSlots(slots);
+    } catch (error) {
+      console.error("Failed to fetch doctor slots:", error.message);
+      setBookedSlots([]);
+    }
+  };
+
+  // Convert "17:30" → "5:30 PM"
+const formatTo12Hour = (time24) => {
+  const [hours, minutes] = time24.split(":").map(Number);
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const formattedHour = hours % 12 || 12;
+  return `${formattedHour}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+};
+
+
+  const isSlotBooked = (timeSlot, date) => {
+  if (!date || !bookedSlots.length) return false;
+
+  // normalize date comparison (UTC vs local fix)
+  const selectedDateStr = new Date(date).toISOString().split("T")[0];
+  
+  // convert frontend time (24hr) into backend time (12hr format)
+  const convertedTime = formatTo12Hour(timeSlot);
+  console.log('========================hhh============');
+  console.log(convertedTime, date);
+  console.log('====================================');
+
+  return bookedSlots.some((appt) => {
+    const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
+
+    return (
+      apptDateStr === selectedDateStr &&
+      appt.timeSlot?.startTime?.trim() === convertedTime
+    );
+  });
+};
 
   // Handle back to doctor selection
   const handleBackToDoctors = useCallback(() => {
@@ -344,19 +390,27 @@ export default function BookAppointmentModal({
                     Select Time Slot
                   </h3>
                   <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
-                    {timeSlots.map((timeSlot) => (
-                      <button
-                        key={timeSlot}
-                        onClick={() => setSelectedTimeSlot(timeSlot)}
-                        className={`p-3 border rounded-lg text-sm font-medium transition-all ${
-                          selectedTimeSlot === timeSlot
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-200 hover:border-blue-300 hover:bg-blue-25"
-                        }`}
-                      >
-                        {formatTimeDisplay(timeSlot)}
-                      </button>
-                    ))}
+                 {timeSlots.map((timeSlot) => {
+  const booked = isSlotBooked(timeSlot, selectedDate);
+  return (
+    <button
+      key={timeSlot}
+      disabled={booked}
+      onClick={() => setSelectedTimeSlot(timeSlot)}
+      className={`p-3 border rounded-lg text-sm font-medium transition-all ${
+        booked
+          ? "bg-red-100 text-red-400 cursor-not-allowed opacity-60"
+          : selectedTimeSlot === timeSlot
+          ? "border-blue-500 bg-blue-50 text-blue-700"
+          : "border-gray-200 hover:border-blue-300 hover:bg-blue-25"
+      }`}
+    >
+      {formatTimeDisplay(timeSlot)}
+      {booked && <span className="block text-xs text-red-500">(Booked)</span>}
+    </button>
+  );
+})}
+
                   </div>
                 </div>
               </div>
