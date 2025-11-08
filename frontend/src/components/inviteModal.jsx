@@ -1,6 +1,4 @@
 "use client";
-
-import { useDoctorContext } from "@/context/doctorContext";
 import { inviteUser } from "@/services/usersServices";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -11,9 +9,9 @@ export function AddUserModal({
   role,
   receptionists,
   setReceptionists,
+  doctors,
+   setDoctors 
 }) {
-  
-  const { doctors, setDoctors } = useDoctorContext();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -276,7 +274,7 @@ export function AddUserModal({
                 <button
                   type="button"
                   onClick={addScheduleRow}
-                  className="text-sm text-blue-600 hover:underline"
+                  className="text-sm text-blue-600 cursor-pointer hover:underline"
                 >
                   + Add another schedule
                 </button>

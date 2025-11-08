@@ -38,6 +38,8 @@ export default function AppointmentsManagement() {
     const [isCaseModalOpen, setIsCaseModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
+
+  // doctor check appointment
   const handleCheckAppointment = (appointment) => {
     setSelectedAppointment(appointment);
     setIsCaseModalOpen(true);
@@ -177,16 +179,6 @@ const filteredAppointments = useMemo(() => {
       day: 'numeric'
     });
   }, []);
-
-  // Format time for display
-//   const formatTime = useCallback((timeString) => {
-//     if (!timeString) return 'N/A';
-//     const [hours, minutes] = timeString.split(':');
-//     const hour = parseInt(hours);
-//     const ampm = hour >= 12 ? 'PM' : 'AM';
-//     const formattedHour = hour % 12 || 12;
-//     return `${formattedHour}:${minutes} ${ampm}`;
-//   }, []);
 
   return (
     <div className="space-y-6">
