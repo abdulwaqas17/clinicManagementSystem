@@ -1,5 +1,7 @@
 import api from "./api";
 
+
+// confirm invite service
 export const confirmInvite = async (id, password) => {
   try {
     const response = await api.post(`/users/confirm/${id}`, { password });
@@ -14,6 +16,8 @@ export const confirmInvite = async (id, password) => {
 };
 
 
+
+// invite user service
 export const inviteUser = async (data, token) => {
   try {
     const formData = new FormData();
@@ -48,5 +52,23 @@ export const inviteUser = async (data, token) => {
     } else {
       throw new Error("Failed to invite user. Please try again.");
     }
+  }
+};
+
+
+// update user service
+export const updateUserProfile = async (userId, formData, token) => {
+  try {
+    const response = await api.put(`/users/update/${userId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log("Profile updated successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating profile:", error.response?.data || error);
+    throw error.response?.data || { message: "Failed to update profile" };
   }
 };

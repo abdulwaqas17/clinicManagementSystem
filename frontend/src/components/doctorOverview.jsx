@@ -281,7 +281,7 @@ export default function DoctorOverview() {
             </div>
             <div className="space-y-4">
               {appointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div key={appointment._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Users className="w-6 h-6 text-blue-600" />

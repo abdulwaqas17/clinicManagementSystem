@@ -58,6 +58,7 @@ const getDashboardData = async (req, res) => {
       const adminCaseHistory = await CaseHistory.find({
         user: loggedInUser.id,
       })
+      .populate("user", "firstName lastName")
         .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
@@ -136,6 +137,7 @@ const getDashboardData = async (req, res) => {
       const receptionistCaseHistory = await CaseHistory.find({
         user: loggedInUser.id,
       })
+      .populate("user", "firstName lastName")
         .populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
         .populate("appointment", "date timeSlot");
 
@@ -164,12 +166,14 @@ const getDashboardData = async (req, res) => {
       // 1. User's appointments
       const appointments = await Appointment.find({
         user: loggedInUser.id,
-      }).populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee");
+      }).populate("doctor", "firstName lastName doctorInfo.specialization doctorInfo.consultationFee")
+      .populate("user", "firstName lastName");
 
       // 2. User's case history
       const userCaseHistory = await CaseHistory.find({
         user: loggedInUser.id,
       })
+      .populate("user", "firstName lastName")
         .populate("doctor", "firstName lastName doctorInfo.specialization ")
         .populate("appointment", "date timeSlot");
 

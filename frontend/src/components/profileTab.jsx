@@ -22,10 +22,12 @@ import {
 // Import your actual context
 import { useProfileContext } from '@/context/profileContext';
 import { useRouter } from 'next/navigation';
+import { updateUserProfile } from '@/services/usersServices';
+import toast from 'react-hot-toast';
 
 export default function ProfilePage() {
     const router = useRouter();
-  const { profile } = useProfileContext();
+  const { profile,setProfile } = useProfileContext();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Calculate age from date of birth
@@ -324,11 +326,9 @@ export default function ProfilePage() {
       {isEditModalOpen && (
         <EditProfileModal
           profile={profile}
+          setProfile={setProfile}
           onClose={() => setIsEditModalOpen(false)}
-          onSave={(updatedProfile) => {
-            console.log('Updated profile:', updatedProfile);
-            setIsEditModalOpen(false);
-          }}
+         
         />
       )}
     </div>
@@ -336,7 +336,7 @@ export default function ProfilePage() {
 }
 
 // Edit Profile Modal Component
-function EditProfileModal({ profile, onClose, onSave }) {
+function EditProfileModal({ profile, setProfile, onClose }) {
   const [formData, setFormData] = useState({
     firstName: profile?.firstName || '',
     lastName: profile?.lastName || '',
@@ -357,42 +357,64 @@ function EditProfileModal({ profile, onClose, onSave }) {
 
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Validation
-    const newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
-    if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
-    if (!formData.gender) newErrors.gender = 'Gender is required';
+  // Submit handler
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // Doctor specific validation
-    if (profile?.role === 'doctor') {
-      if (!formData.doctorInfo.specialization.trim()) {
-        newErrors.specialization = 'Specialization is required';
-      }
-      if (formData.doctorInfo.experience < 0) {
-        newErrors.experience = 'Experience cannot be negative';
-      }
-      if (formData.doctorInfo.consultationFee < 0) {
-        newErrors.consultationFee = 'Consultation fee cannot be negative';
-      }
+  // Validation (same as before)
+  const newErrors = {};
+  if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+  if (!formData.email.trim()) newErrors.email = "Email is required";
+  if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+  if (!formData.date_of_birth) newErrors.date_of_birth = "Date of birth is required";
+  if (!formData.gender) newErrors.gender = "Gender is required";
+
+  if (profile?.role === "doctor") {
+    if (!formData.doctorInfo.specialization.trim())
+      newErrors.specialization = "Specialization is required";
+    if (formData.doctorInfo.experience < 0)
+      newErrors.experience = "Experience cannot be negative";
+    if (formData.doctorInfo.consultationFee < 0)
+      newErrors.consultationFee = "Consultation fee cannot be negative";
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token"); // or from context
+    const formPayload = new FormData();
+
+    formPayload.append("firstName", formData.firstName);
+    formPayload.append("lastName", formData.lastName);
+    formPayload.append("email", formData.email);
+    formPayload.append("phone", formData.phone);
+    formPayload.append("gender", formData.gender);
+    formPayload.append("date_of_birth", formData.date_of_birth);
+    formPayload.append("address", formData.address);
+
+    if (formData.profileImage instanceof File) {
+      formPayload.append("profileImage", formData.profileImage);
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+    if (profile.role === "doctor" && formData.doctorInfo) {
+      formPayload.append("doctorInfo", JSON.stringify(formData.doctorInfo));
     }
 
-    const submissionData = {
-      ...profile,
-      ...formData
-    };
+    const result = await updateUserProfile(profile._id, formPayload, token);
 
-    onSave(submissionData);
-  };
+    if (result.success) {
+      setProfile(result.data);
+      onClose();
+      toast.success("Profile updated successfully!");
+    }
+  } catch (error) {
+    toast.error(error.message || "Failed to update profile");
+  }
+};
+
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -455,7 +477,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -599,14 +621,15 @@ function EditProfileModal({ profile, onClose, onSave }) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Profile Image URL
               </label>
-              <input
-                type="url"
-                name="profileImage"
-                value={formData.profileImage}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setFormData(prev => ({
+    ...prev,
+    profileImage: e.target.files[0]
+  }))}
+/>
+
             </div>
           </div>
 

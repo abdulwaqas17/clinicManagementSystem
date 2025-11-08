@@ -202,7 +202,7 @@ export default function ReceptionistDashboardOverview() {
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-6">
-            <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+            <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
               <UserCheck className="w-10 h-10 text-white" />
             </div>
             <div className="flex-1">
@@ -213,15 +213,15 @@ export default function ReceptionistDashboardOverview() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Users className="w-4 h-4" />
                   <span className="text-sm">{staff.department}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-600">
+                {/* <div className="flex items-center space-x-2 text-gray-600">
                   <FileText className="w-4 h-4" />
                   <span className="text-sm">ID: {staff.employeeId}</span>
-                </div>
+                </div> */}
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Calendar className="w-4 h-4" />
                   <span className="text-sm">Since {formatDate(profile.createdAt)}</span>
@@ -232,7 +232,7 @@ export default function ReceptionistDashboardOverview() {
                 </div> */}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Phone className="w-4 h-4" />
                   <span className="text-sm">{profile.phone} </span>

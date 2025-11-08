@@ -20,6 +20,7 @@ import {
 import { useAppointmentContext } from '@/context/appointmentContext';
 import { useProfileContext } from '@/context/profileContext';
 import BookAppointmentModal from './BookAppointmentModal';
+import CaseHistoryModal from './CaseHistoryModal';
 
 
 
@@ -32,9 +33,15 @@ export default function AppointmentsManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+    const [isCaseModalOpen, setIsCaseModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  const handleCheckAppointment = (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsCaseModalOpen(true);
+  };
 
   // Filter and search appointments
 const filteredAppointments = useMemo(() => {
@@ -124,13 +131,6 @@ const filteredAppointments = useMemo(() => {
   }, []);
 
 
-  // Handle check appointment (for doctors)
-  const handleCheckAppointment = useCallback((appointment) => {
-    // Here you would typically handle the check appointment logic
-    console.log('Check appointment:', appointment);
-    alert(`Checking appointment for ${appointment.user?.firstName} ${appointment.user?.lastName}`);
-  }, []);
-
    // Handle book new appointment
   const handleBookAppointment = useCallback(() => {
     setIsBookModalOpen(true);
@@ -198,13 +198,15 @@ const filteredAppointments = useMemo(() => {
             {filteredAppointments.length} appointments found
           </p>
         </div>
-        <button 
+      { profile?.role !== "doctor" && (
+         <button 
           onClick={handleBookAppointment}
           className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>Book New Appointment</span>
         </button>
+      )} 
       </div>
 
       {/* Filters and Search Section */}
@@ -378,15 +380,15 @@ const filteredAppointments = useMemo(() => {
                     {/* Actions */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        {profile?.role === 'doctor' && (
-                          <button
-                            onClick={() => handleCheckAppointment(appointment)}
-                            className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 py-1 rounded hover:bg-green-50"
-                          >
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>Check</span>
-                          </button>
-                        )}
+                         {profile?.role === "doctor" && (
+        <button
+          onClick={() => handleCheckAppointment(appointment)}
+          className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 py-1 rounded hover:bg-green-50"
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span>Check</span>
+        </button>
+      )}
                         <button
                           onClick={() => handleEdit(appointment)}
                           className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50"
@@ -430,6 +432,15 @@ const filteredAppointments = useMemo(() => {
         onBookAppointment={handleFinalBookAppointment}
         setAppointments={setAppointments}
         appointments={appointments}
+      />
+
+        <CaseHistoryModal
+        isOpen={isCaseModalOpen}
+        onClose={() => setIsCaseModalOpen(false)}
+        appointment={selectedAppointment}
+        appointments={appointments}
+        setAppointments={setAppointments}
+      
       />
     </div>
   );

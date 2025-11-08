@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../../models/users");
-const { uploadToCloudinary } = require("../../config/cloudinary");
 const mongoose = require("mongoose");
+const uploadToCloudinary = require("../../config/cloudinary");
 
 const updateUser = async (req, res) => {
   try {
@@ -15,11 +15,28 @@ const updateUser = async (req, res) => {
       gender,
       date_of_birth,
       address,
-      city,
-      country,
-      doctorInfo,
-      password,
+     password,
+      doctorInfo
     } = req.body;
+
+    console.log('====================================');
+    console.log(   firstName,
+      lastName,
+      email,
+      phone,
+      gender,
+      date_of_birth,
+      address,
+   
+      doctorInfo);
+    console.log('====================================');
+
+    if(!firstName || !lastName || !email || !phone || !gender || !date_of_birth || !address){
+      return  res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
 
     // 1. Validate ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -36,9 +53,9 @@ const updateUser = async (req, res) => {
     const role = loggedInUser.role;
     const canEdit =
       role === "admin" ||
-      id === loggedInUser._id.toString() ||
+      id === loggedInUser.id.toString() ||
       (role === "receptionist" &&
-        (userToUpdate.role === "user" || id === loggedInUser._id.toString()));
+        (userToUpdate.role === "user" || id === loggedInUser.id.toString()));
 
     if (!canEdit) {
       return res.status(403).json({
@@ -69,9 +86,7 @@ const updateUser = async (req, res) => {
       phone,
       gender,
       date_of_birth,
-      address,
-      city,
-      country
+      address
     };
 
     // 6. Hash password if provided

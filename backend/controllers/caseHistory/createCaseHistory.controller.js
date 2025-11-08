@@ -56,7 +56,8 @@ const createCaseHistory = async (req, res) => {
     await caseHistory.save();
 
     // Update appointment status → Completed
-    await Appointment.findByIdAndUpdate(appointment, { status: "Completed" });
+    const updateAppointment = await Appointment.findByIdAndUpdate(appointment, { status: "Completed" }).populate("doctor", "firstName lastName");
+;
 
     // Populate before sending response
     const populatedCase = await CaseHistory.findById(caseHistory._id)
@@ -68,6 +69,7 @@ const createCaseHistory = async (req, res) => {
       success: true,
       message: "Case history created successfully.",
       data: populatedCase,
+      updateAppointment
     });
   } catch (error) {
     console.error("Error in createCaseHistory:", error);
