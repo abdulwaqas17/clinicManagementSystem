@@ -16,7 +16,9 @@ export const AppProvider = ({ children }) => {
           <ProfileProvider>
             <UserProvider>
               <RoomProvider>
-                <AppointmentProvider>{children}</AppointmentProvider>
+                <AppointmentProvider>
+                  {children}
+                  </AppointmentProvider>
               </RoomProvider>
             </UserProvider>
           </ProfileProvider>

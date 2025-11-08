@@ -21,11 +21,9 @@ import { useRoomContext } from '@/context/roomContext';
 import { useAppointmentContext } from '@/context/appointmentContext';
 import { useDoctorContext } from '@/context/doctorContext';
 import { useReceptionistContext } from '@/context/receptionistContext';
-// import { useCaseHistoryContext } from '@/context/caseHistoryContext';
-
 
 export default function AdminDashboardOverview() {
-  // 🧠 Contexts se data lena
+  // Contexts se data lena
   const { profile } = useProfileContext();
   const { users } = useUsersContext(); // patients
   const { rooms } = useRoomContext();
@@ -42,9 +40,7 @@ export default function AdminDashboardOverview() {
   console.log(appointments);
   console.log('====================================');
 
-  
-
-  // 🧮 Stats calculation (dynamic)
+  //  Stats calculation (dynamic)
   const stats = useMemo(() => ({
     totalPatients: users?.length || 0,
     totalDoctors: doctors?.length || 0,
@@ -54,43 +50,12 @@ export default function AdminDashboardOverview() {
     pendingTasks: appointments?.filter(a => a.status === 'Pending')?.length || 0,
   }), [users, doctors, appointments, rooms]);
 
-  // 🔹 Dynamic Recent Appointments
-  // const recentAppointments = useMemo(
-  //   () =>
-  //     appointments
-  //       ?.slice(-4)
-  //       .reverse()
-  //       .map((a, i) => ({
-  //         id: i + 1,
-  //         patient: a.patientName || 'Unknown Patient',
-  //         doctor: a.doctorName || 'Unknown Doctor',
-  //         time: a.time || 'N/A',
-  //         status: a.status || 'Scheduled',
-  //       })) || [],
-  //   [appointments]
-  // );
-
-  // // 🔹 Dynamic Top Doctors
-  // const topDoctors = useMemo(
-  //   () =>
-  //     doctors
-  //       ?.sort((a, b) => (b.patientsSeen || 0) - (a.patientsSeen || 0))
-  //       .slice(0, 4)
-  //       .map(d => ({
-  //         name: d.name,
-  //         specialty: d.specialty || 'General',
-  //         patients: d.patientsSeen || 0,
-  //         rating: d.rating || 4.5,
-  //       })) || [],
-  //   [doctors]
-  // );
-
-  // 🔹 Status helpers
+  //  Status helpers
   const getStatusIcon = status => {
     switch (status) {
-      case 'Completed':
+      case 'Booked':
         return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case 'In Progress':
+      case 'Completed':
         return <Clock className="w-4 h-4 text-blue-500" />;
       case 'Scheduled':
         return <CalendarClock className="w-4 h-4 text-yellow-500" />;
@@ -101,9 +66,9 @@ export default function AdminDashboardOverview() {
 
   const getStatusColor = status => {
     switch (status) {
-      case 'Completed':
+      case 'Booked':
         return 'bg-green-100 text-green-800';
-      case 'In Progress':
+      case 'Completed':
         return 'bg-blue-100 text-blue-800';
       case 'Scheduled':
         return 'bg-yellow-100 text-yellow-800';
@@ -261,7 +226,7 @@ export default function AdminDashboardOverview() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{doctor.firstName}</p>
-                    <p className="text-sm text-gray-500">{doctor.specialization}</p>
+                    <p className="text-sm text-gray-500">{doctor.doctorInfo.specialization}</p>
                   </div>
                 </div>
                 <div className="text-right">

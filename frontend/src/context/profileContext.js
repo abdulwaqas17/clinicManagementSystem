@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-  const [profile, setProfile] = useState([]);
+  const [profile, setProfile] = useState({});
   return (
     <ProfileContext.Provider value={{ profile, setProfile }}>
       {children}

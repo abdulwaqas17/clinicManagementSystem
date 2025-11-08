@@ -44,6 +44,17 @@ export default function ReceptionistManagement() {
     NotFound();
   }
 
+    // Handle sort
+  const handleSort = useCallback((key) => {
+    setSortConfig((prevConfig) => ({
+      key,
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc",
+    }));
+  }, []);
+
   // Calculate age from date of birth
   const calculateAge = useCallback((dateOfBirth) => {
     if (!dateOfBirth) return "N/A";
@@ -103,9 +114,9 @@ export default function ReceptionistManagement() {
             ? nameA.localeCompare(nameB)
             : nameB.localeCompare(nameA);
         }
-        if (sortConfig.key === "joinDate") {
-          const dateA = new Date(a.joinDate || "");
-          const dateB = new Date(b.joinDate || "");
+        if (sortConfig.key === "createdAt") {
+          const dateA = new Date(a.createdAt || "");
+          const dateB = new Date(b.createdAt || "");
           return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
         }
         if (sortConfig.key === "status") {
@@ -208,8 +219,8 @@ export default function ReceptionistManagement() {
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="on-leave">On Leave</option>
+              <option value="invited">Invited</option>
+              <option value="disabled">Disabled</option>
             </select>
 
             <button className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -242,11 +253,11 @@ export default function ReceptionistManagement() {
                 </th>
                 <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort("joinDate")}
+                  onClick={() => handleSort("createdAt")}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Employment</span>
-                    {sortConfig.key === "joinDate" && (
+                    {sortConfig.key === "createdAt" && (
                       <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
@@ -354,12 +365,12 @@ export default function ReceptionistManagement() {
                           <Eye className="w-4 h-4" />
                           <span>View</span>
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => handleDelete(receptionist._id)}
                           className="flex items-center space-x-1 text-red-600 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -389,6 +400,8 @@ export default function ReceptionistManagement() {
             setIsAddModalOpen(false);
           }}
           role="receptionist"
+          receptionists={receptionists}
+          setReceptionists={setReceptionists}
       
         />
       

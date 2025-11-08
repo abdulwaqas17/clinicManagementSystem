@@ -31,7 +31,6 @@ export default function DashboardLayout({ children }) {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-
   const { profile, setProfile } = useProfileContext();
   const { setUsers } = useUsersContext();
   const { setRooms } = useRoomContext();
@@ -48,7 +47,6 @@ export default function DashboardLayout({ children }) {
         const data = await getDashboardData(token);
         
         toast.success("Dashboard data loaded!");
-
         setProfile(data.profile || null);
         setUsers(data.users || []);
         setRooms(data.rooms || []);

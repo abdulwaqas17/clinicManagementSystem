@@ -22,11 +22,9 @@ import { useProfileContext } from "@/context/profileContext";
 import NotFound from "@/app/not-found";
 
 // Import your actual context
-
 export default function UsersManagement() {
   const { users } = useUsersContext();
   const { profile } = useProfileContext();
-
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [genderFilter, setGenderFilter] = useState("all");
@@ -380,10 +378,10 @@ export default function UsersManagement() {
                           <Edit className="w-4 h-4" />
                           <span>Edit</span>
                         </button>
-                        <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-700">
+                        {/* <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-700">
                           <Eye className="w-4 h-4" />
                           <span>View</span>
-                        </button>
+                        </button> */}
                         <button className="flex items-center space-x-1 text-red-600 hover:text-red-700">
                           <Trash2 className="w-4 h-4" />
                         </button>

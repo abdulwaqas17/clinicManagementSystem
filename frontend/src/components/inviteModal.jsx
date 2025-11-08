@@ -1,15 +1,19 @@
-'use client';
+"use client";
 
 import { useDoctorContext } from "@/context/doctorContext";
-import { useReceptionistContext } from "@/context/receptionistContext";
 import { inviteUser } from "@/services/usersServices";
 import { useState } from "react";
-
 import { toast } from "react-hot-toast";
 
-export function AddUserModal({ isOpen, onClose, role }) {
-      const { doctors,setDoctors } = useDoctorContext();
-      const { receptionists,setReceptionists } = useReceptionistContext();
+export function AddUserModal({
+  isOpen,
+  onClose,
+  role,
+  receptionists,
+  setReceptionists,
+}) {
+  
+  const { doctors, setDoctors } = useDoctorContext();
 
   const [formData, setFormData] = useState({
     firstName: "",
