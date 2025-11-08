@@ -1,1 +1,3 @@
-birth calculate logic
+birth calculate, formatedate, timeSlot = logic
+16:100 - 17:30 = pending
+all date,today,upcoming = penfing

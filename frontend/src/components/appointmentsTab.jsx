@@ -382,14 +382,14 @@ const filteredAppointments = useMemo(() => {
         </button>
       )}
                         <button
-                          onClick={() => handleEdit(appointment)}
+                          // onClick={() => handleEdit(appointment)}
                           className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50"
                         >
                           <Edit className="w-4 h-4" />
                           <span>Edit</span>
                         </button>
                         <button
-                          onClick={() => handleDelete(appointment._id)}
+                          // onClick={() => handleDelete(appointment._id)}
                           className="flex items-center space-x-1 text-red-600 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -421,7 +421,6 @@ const filteredAppointments = useMemo(() => {
     <BookAppointmentModal
         isOpen={isBookModalOpen}
         onClose={handleCloseBookModal}
-        onBookAppointment={handleFinalBookAppointment}
         setAppointments={setAppointments}
         appointments={appointments}
       />

@@ -19,6 +19,10 @@ const getDoctorBookedSlots = async (req, res) => {
   status: "Booked",
 }).select("date timeSlot");
 
+console.log('================appointments slots====================');
+console.log(appointments);
+console.log('================appointments slots====================');
+
     // If no appointments found
     if (!appointments || appointments.length === 0) {
       return res.status(200).json({

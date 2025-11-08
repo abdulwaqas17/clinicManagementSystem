@@ -61,6 +61,9 @@ export default function BookAppointmentModal({
         slots.push(timeString);
       }
     }
+    console.log('===================slots=================');
+    console.log(slots);
+    console.log('===================slots=================');
     return slots;
   }, []);
 
@@ -99,15 +102,19 @@ export default function BookAppointmentModal({
     }
   };
 
-  // Convert "17:30" → "5:30 PM"
-const formatTo12Hour = (time24) => {
-  const [hours, minutes] = time24.split(":").map(Number);
-  const ampm = hours >= 12 ? "PM" : "AM";
-  const formattedHour = hours % 12 || 12;
-  return `${formattedHour}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-};
+
+    // Format time for display
+  const formatTimeDisplay = useCallback((timeString) => {
+    const [hours, minutes] = timeString.split(":");
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 || 12;
+    return `${formattedHour}:${minutes} ${ampm}`;
+  }, []);
 
 
+
+  // check if slot is booked
   const isSlotBooked = (timeSlot, date) => {
   if (!date || !bookedSlots.length) return false;
 
@@ -115,13 +122,13 @@ const formatTo12Hour = (time24) => {
   const selectedDateStr = new Date(date).toISOString().split("T")[0];
   
   // convert frontend time (24hr) into backend time (12hr format)
-  const convertedTime = formatTo12Hour(timeSlot);
-  console.log('========================hhh============');
-  console.log(convertedTime, date);
-  console.log('====================================');
-
+  const convertedTime = formatTimeDisplay(timeSlot);
+  
   return bookedSlots.some((appt) => {
     const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
+    console.log('========================hhh============');
+    console.log(convertedTime, selectedDateStr,apptDateStr,appt.timeSlot?.startTime?.trim() );
+    console.log('====================================');
 
     return (
       apptDateStr === selectedDateStr &&
@@ -135,16 +142,6 @@ const formatTo12Hour = (time24) => {
     setCurrentStep(1);
   }, []);
 
- 
-
-  // Format time for display
-  const formatTimeDisplay = useCallback((timeString) => {
-    const [hours, minutes] = timeString.split(":");
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12;
-    return `${formattedHour}:${minutes} ${ampm}`;
-  }, []);
 
    // Book Appointment
   const handleBookAppointment = async () => {
