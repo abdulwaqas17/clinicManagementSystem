@@ -147,9 +147,9 @@ export default function DoctorOverview() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Confirmed':
+      case 'Completed':
         return 'bg-green-100 text-green-800';
-      case 'Pending':
+      case 'Booked':
         return 'bg-yellow-100 text-yellow-800';
       case 'Cancelled':
         return 'bg-red-100 text-red-800';

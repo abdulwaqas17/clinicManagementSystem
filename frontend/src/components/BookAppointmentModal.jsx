@@ -17,7 +17,10 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useDoctorContext } from "@/context/doctorContext";
-import { bookAppointment, getDoctorBookedSlots } from "@/services/appointmentService";
+import {
+  bookAppointment,
+  getDoctorBookedSlots,
+} from "@/services/appointmentService";
 import toast from "react-hot-toast";
 
 // Book Appointment Modal Component
@@ -25,15 +28,15 @@ export default function BookAppointmentModal({
   isOpen,
   onClose,
   setAppointments,
-  appointments
+  appointments,
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-   const [bookedSlots, setBookedSlots] = useState([]);
-
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { doctors } = useDoctorContext();
 
   // Filter doctors based on search
@@ -61,9 +64,9 @@ export default function BookAppointmentModal({
         slots.push(timeString);
       }
     }
-    console.log('===================slots=================');
+    console.log("===================slots=================");
     console.log(slots);
-    console.log('===================slots=================');
+    console.log("===================slots=================");
     return slots;
   }, []);
 
@@ -87,8 +90,8 @@ export default function BookAppointmentModal({
   const handleDoctorSelect = async (doctor) => {
     const token = localStorage.getItem("token");
     if (!token) {
-        alert("User not authenticated");
-        return;
+      alert("User not authenticated");
+      return;
     }
     setSelectedDoctor(doctor);
     setCurrentStep(2);
@@ -102,8 +105,7 @@ export default function BookAppointmentModal({
     }
   };
 
-
-    // Format time for display
+  // Format time for display
   const formatTimeDisplay = useCallback((timeString) => {
     const [hours, minutes] = timeString.split(":");
     const hour = parseInt(hours);
@@ -112,38 +114,40 @@ export default function BookAppointmentModal({
     return `${formattedHour}:${minutes} ${ampm}`;
   }, []);
 
-
-
   // check if slot is booked
   const isSlotBooked = (timeSlot, date) => {
-  if (!date || !bookedSlots.length) return false;
+    if (!date || !bookedSlots.length) return false;
 
-  // normalize date comparison (UTC vs local fix)
-  const selectedDateStr = new Date(date).toISOString().split("T")[0];
-  
-  // convert frontend time (24hr) into backend time (12hr format)
-  const convertedTime = formatTimeDisplay(timeSlot);
-  
-  return bookedSlots.some((appt) => {
-    const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
-    console.log('========================hhh============');
-    console.log(convertedTime, selectedDateStr,apptDateStr,appt.timeSlot?.startTime?.trim() );
-    console.log('====================================');
+    // normalize date comparison (UTC vs local fix)
+    const selectedDateStr = new Date(date).toISOString().split("T")[0];
 
-    return (
-      apptDateStr === selectedDateStr &&
-      appt.timeSlot?.startTime?.trim() === convertedTime
-    );
-  });
-};
+    // convert frontend time (24hr) into backend time (12hr format)
+    const convertedTime = formatTimeDisplay(timeSlot);
+
+    return bookedSlots.some((appt) => {
+      const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
+      console.log("========================hhh============");
+      console.log(
+        convertedTime,
+        selectedDateStr,
+        apptDateStr,
+        appt.timeSlot?.startTime?.trim()
+      );
+      console.log("====================================");
+
+      return (
+        apptDateStr === selectedDateStr &&
+        appt.timeSlot?.startTime?.trim() === convertedTime
+      );
+    });
+  };
 
   // Handle back to doctor selection
   const handleBackToDoctors = useCallback(() => {
     setCurrentStep(1);
   }, []);
 
-
-   // Book Appointment
+  // Book Appointment
   const handleBookAppointment = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -157,12 +161,18 @@ export default function BookAppointmentModal({
     }
 
     try {
+      setLoading(true);
       const timeSlot = {
         startTime: formatTimeDisplay(selectedTimeSlot),
         endTime: formatTimeDisplay(getEndTime(selectedTimeSlot)),
       };
 
-      const res = await bookAppointment(selectedDoctor._id, selectedDate, timeSlot, token);
+      const res = await bookAppointment(
+        selectedDoctor._id,
+        selectedDate,
+        timeSlot,
+        token
+      );
 
       setAppointments([...appointments, res.data]);
 
@@ -175,6 +185,8 @@ export default function BookAppointmentModal({
       onClose(); // modal band karo
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -398,27 +410,30 @@ export default function BookAppointmentModal({
                     Select Time Slot
                   </h3>
                   <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
-                 {timeSlots.map((timeSlot) => {
-  const booked = isSlotBooked(timeSlot, selectedDate);
-  return (
-    <button
-      key={timeSlot}
-      disabled={booked}
-      onClick={() => setSelectedTimeSlot(timeSlot)}
-      className={`p-3 border rounded-lg text-sm font-medium transition-all ${
-        booked
-          ? "bg-red-100 text-red-400 cursor-not-allowed opacity-60"
-          : selectedTimeSlot === timeSlot
-          ? "border-blue-500 bg-blue-50 text-blue-700"
-          : "border-gray-200 hover:border-blue-300 hover:bg-blue-25"
-      }`}
-    >
-      {formatTimeDisplay(timeSlot)}
-      {booked && <span className="block text-xs text-red-500">(Booked)</span>}
-    </button>
-  );
-})}
-
+                    {timeSlots.map((timeSlot) => {
+                      const booked = isSlotBooked(timeSlot, selectedDate);
+                      return (
+                        <button
+                          key={timeSlot}
+                          disabled={booked}
+                          onClick={() => setSelectedTimeSlot(timeSlot)}
+                          className={`p-3 border rounded-lg text-sm font-medium transition-all ${
+                            booked
+                              ? "bg-red-100 text-red-400 cursor-not-allowed opacity-60"
+                              : selectedTimeSlot === timeSlot
+                              ? "border-blue-500 bg-blue-50 text-blue-700"
+                              : "border-gray-200 hover:border-blue-300 hover:bg-blue-25"
+                          }`}
+                        >
+                          {formatTimeDisplay(timeSlot)}
+                          {booked && (
+                            <span className="block text-xs text-red-500">
+                              (Booked)
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -466,12 +481,12 @@ export default function BookAppointmentModal({
                   <span>Back</span>
                 </button>
                 <button
-                 onClick={handleBookAppointment}
+                  onClick={handleBookAppointment}
                   disabled={!selectedDate || !selectedTimeSlot}
                   className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Book Appointment</span>
+                  <span>{loading ? "Booking Appointment..." : "Book Appointment"} </span>
                 </button>
               </div>
             </div>

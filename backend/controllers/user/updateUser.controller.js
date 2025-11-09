@@ -19,17 +19,10 @@ const updateUser = async (req, res) => {
       doctorInfo
     } = req.body;
 
-    console.log('====================================');
-    console.log(   firstName,
-      lastName,
-      email,
-      phone,
-      gender,
-      date_of_birth,
-      address,
-   
+    console.log('===============doctor info=====================');
+    console.log(
       doctorInfo);
-    console.log('====================================');
+    console.log('===============doctor info=====================');
 
     if(!firstName || !lastName || !email || !phone || !gender || !date_of_birth || !address){
       return  res.status(400).json({
@@ -97,6 +90,7 @@ const updateUser = async (req, res) => {
 
     // 7. Include doctor info if applicable
     if (userToUpdate.role === "doctor" && doctorInfo) {
+      
       updateData.doctorInfo = JSON.parse(doctorInfo);
     }
 

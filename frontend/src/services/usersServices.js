@@ -37,6 +37,22 @@ export const inviteUser = async (data, token) => {
   }
 };
 
+
+// confirm invite service
+export const confirmInvite = async (id, password) => {
+  try {
+    const response = await api.post(`/users/confirm/${id}`, { password });
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error("Failed to confirm invitation. Please try again.");
+    }
+  }
+};
+
+
 // update user service
 export const updateUserProfile = async (userId, formData, token) => {
   try {
@@ -51,19 +67,5 @@ export const updateUserProfile = async (userId, formData, token) => {
   } catch (error) {
     console.error("Error updating profile:", error.response?.data || error);
     throw error.response?.data || { message: "Failed to update profile" };
-  }
-};
-
-// confirm invite service
-export const confirmInvite = async (id, password) => {
-  try {
-    const response = await api.post(`/users/confirm/${id}`, { password });
-    return response.data;
-  } catch (error) {
-    if (error.response?.data?.message) {
-      throw new Error(error.response.data.message);
-    } else {
-      throw new Error("Failed to confirm invitation. Please try again.");
-    }
   }
 };

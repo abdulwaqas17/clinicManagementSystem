@@ -5,13 +5,21 @@ import { X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { createCaseHistory } from "@/services/caseHistoryService";
 
-export default function CaseHistoryModal({ isOpen, onClose, appointment, appointments, setAppointments }) {
+export default function CaseHistoryModal({
+  isOpen,
+  onClose,
+  appointment,
+  appointments,
+  setAppointments,
+}) {
   const [formData, setFormData] = useState({
     diagnosis: "",
     prescription: "",
     notes: "",
     followUpDate: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -23,12 +31,13 @@ export default function CaseHistoryModal({ isOpen, onClose, appointment, appoint
     e.preventDefault();
     const token = localStorage.getItem("token");
 
-    if(!token){
+    if (!token) {
       toast.error("User not authenticated");
 
       return;
     }
     try {
+      setLoading(true);
       const payload = {
         user: appointment.user._id,
         appointment: appointment._id,
@@ -38,17 +47,21 @@ export default function CaseHistoryModal({ isOpen, onClose, appointment, appoint
         followUpDate: formData.followUpDate,
       };
 
-      const res = await createCaseHistory(payload,token);
+      const res = await createCaseHistory(payload, token);
 
-      setAppointments(appointments.map(app => app._id === appointment._id ? {...app, status: "Completed"} : app));
+      setAppointments(
+        appointments.map((app) =>
+          app._id === appointment._id ? { ...app, status: "Completed" } : app
+        )
+      );
 
-       
-        toast.success("Case history created successfully!");
-        onClose();
-    
+      toast.success("Case history created successfully!");
+      onClose();
     } catch (error) {
       toast.error("Error creating case history");
       console.error(error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -112,6 +125,7 @@ export default function CaseHistoryModal({ isOpen, onClose, appointment, appoint
             <input
               type="date"
               name="followUpDate"
+              min={new Date().toISOString().split("T")[0]}
               className="w-full border rounded-md p-2"
               value={formData.followUpDate}
               onChange={handleChange}
@@ -130,7 +144,7 @@ export default function CaseHistoryModal({ isOpen, onClose, appointment, appoint
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>

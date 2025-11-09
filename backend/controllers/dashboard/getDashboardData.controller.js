@@ -28,7 +28,7 @@ const getDashboardData = async (req, res) => {
       const doctors = await User.find({ role: "doctor" }).populate({
         path: "doctorInfo.doctorRoom",
         select: "roomNumber name",
-      });
+      }); 
 
             // 2. All users (only role: user)
       const users = await User.find({ role: "user" });

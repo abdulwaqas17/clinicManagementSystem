@@ -6,7 +6,8 @@ const User = require("../../models/users");
 const createCaseHistory = async (req, res) => {
   try {
     const loggedInUser = req.user; // from verifyToken middleware
-    const { user, appointment, diagnosis, prescription, notes, followUpDate } = req.body;
+    const { user, appointment, diagnosis, prescription, notes, followUpDate } =
+      req.body;
 
     // Only doctors can create case history
     if (loggedInUser.role !== "doctor") {
@@ -25,8 +26,9 @@ const createCaseHistory = async (req, res) => {
     }
 
     // Check if the appointment exists and belongs to this doctor
-    const existingAppointment = await Appointment.findById(appointment)
-      .populate("doctor", "firstName lastName");
+    const existingAppointment = await Appointment.findById(
+      appointment
+    ).populate("doctor", "firstName lastName");
 
     if (!existingAppointment) {
       return res.status(404).json({
@@ -56,9 +58,9 @@ const createCaseHistory = async (req, res) => {
     await caseHistory.save();
 
     // Update appointment status → Completed
-    const updateAppointment = await Appointment.findByIdAndUpdate(appointment, { status: "Completed" }).populate("doctor", "firstName lastName");
-;
-
+    const updateAppointment = await Appointment.findByIdAndUpdate(appointment, {
+      status: "Completed",
+    }).populate("doctor", "firstName lastName");
     // Populate before sending response
     const populatedCase = await CaseHistory.findById(caseHistory._id)
       .populate("user", "firstName lastName email")
@@ -69,7 +71,7 @@ const createCaseHistory = async (req, res) => {
       success: true,
       message: "Case history created successfully.",
       data: populatedCase,
-      updateAppointment
+      updateAppointment,
     });
   } catch (error) {
     console.error("Error in createCaseHistory:", error);

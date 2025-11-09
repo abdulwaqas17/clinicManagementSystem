@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from "react";
 import {
   Calendar,
   Clock,
@@ -15,29 +15,29 @@ import {
   MoreVertical,
   Plus,
   Download,
-  Eye
-} from 'lucide-react';
-import { useAppointmentContext } from '@/context/appointmentContext';
-import { useProfileContext } from '@/context/profileContext';
-import BookAppointmentModal from './BookAppointmentModal';
-import CaseHistoryModal from './CaseHistoryModal';
-
-
+  Eye,
+} from "lucide-react";
+import { useAppointmentContext } from "@/context/appointmentContext";
+import { useProfileContext } from "@/context/profileContext";
+import BookAppointmentModal from "./BookAppointmentModal";
+import CaseHistoryModal from "./CaseHistoryModal";
 
 export default function AppointmentsManagement() {
-  const { appointments ,setAppointments} = useAppointmentContext();
-  
+  const { appointments, setAppointments } = useAppointmentContext();
+
   const { profile } = useProfileContext();
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
 
-  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
-    const [isCaseModalOpen, setIsCaseModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [sortConfig, setSortConfig] = useState({
+    key: "date",
+    direction: "desc",
+  });
+  const [isCaseModalOpen, setIsCaseModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-
 
   // doctor check appointment
   const handleCheckAppointment = (appointment) => {
@@ -46,8 +46,7 @@ export default function AppointmentsManagement() {
   };
 
   // Filter and search appointments
-const filteredAppointments = useMemo(() => {
-
+  const filteredAppointments = useMemo(() => {
     if (!appointments || !Array.isArray(appointments)) return [];
 
     let result = [...appointments];
@@ -55,38 +54,47 @@ const filteredAppointments = useMemo(() => {
     // Apply search filter
     if (searchTerm) {
       const lowercasedSearch = searchTerm.toLowerCase();
-      result = result.filter(appointment =>
-        appointment.user?.firstName?.toLowerCase().includes(lowercasedSearch) ||
-        appointment.user?.lastName?.toLowerCase().includes(lowercasedSearch) ||
-        appointment.doctor?.firstName?.toLowerCase().includes(lowercasedSearch) ||
-        appointment.doctor?.lastName?.toLowerCase().includes(lowercasedSearch)
+      result = result.filter(
+        (appointment) =>
+          appointment.user?.firstName
+            ?.toLowerCase()
+            .includes(lowercasedSearch) ||
+          appointment.user?.lastName
+            ?.toLowerCase()
+            .includes(lowercasedSearch) ||
+          appointment.doctor?.firstName
+            ?.toLowerCase()
+            .includes(lowercasedSearch) ||
+          appointment.doctor?.lastName?.toLowerCase().includes(lowercasedSearch)
       );
     }
 
     // Apply status filter
-    if (statusFilter !== 'all') {
-      result = result.filter(appointment => appointment.status === statusFilter);
+    if (statusFilter !== "all") {
+      result = result.filter(
+        (appointment) => appointment.status === statusFilter
+      );
     }
 
     // Apply date filter
-    if (dateFilter !== 'all') {
+    if (dateFilter !== "all") {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      if (dateFilter === 'today') {
-        result = result.filter(appointment => {
+      if (dateFilter === "today") {
+        result = result.filter((appointment) => {
           const appointmentDate = new Date(appointment.date);
           appointmentDate.setHours(0, 0, 0, 0);
           return appointmentDate.getTime() === today.getTime();
         });
-      } else if (dateFilter === 'upcoming') {
-        result = result.filter(appointment => {
+      } else if (dateFilter === "upcoming") {
+        result = result.filter((appointment) => {
           const appointmentDate = new Date(appointment.date);
           appointmentDate.setHours(0, 0, 0, 0);
           return appointmentDate.getTime() >= today.getTime();
         });
-      } else if (dateFilter === 'past') {
-        result = result.filter(appointment => {
+      } else if (dateFilter === "past") {
+        result = result.filter((appointment) => {
           const appointmentDate = new Date(appointment.date);
           appointmentDate.setHours(0, 0, 0, 0);
           return appointmentDate.getTime() < today.getTime();
@@ -97,24 +105,36 @@ const filteredAppointments = useMemo(() => {
     // Apply sorting
     if (sortConfig.key) {
       result.sort((a, b) => {
-        if (sortConfig.key === 'date') {
+        if (sortConfig.key === "date") {
           const dateA = new Date(a.date);
           const dateB = new Date(b.date);
-          return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+          return sortConfig.direction === "asc" ? dateA - dateB : dateB - dateA;
         }
-        if (sortConfig.key === 'patient') {
-          const nameA = `${a.user?.firstName || ''} ${a.user?.lastName || ''}`.toLowerCase();
-          const nameB = `${b.user?.firstName || ''} ${b.user?.lastName || ''}`.toLowerCase();
-          return sortConfig.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        if (sortConfig.key === "patient") {
+          const nameA = `${a.user?.firstName || ""} ${
+            a.user?.lastName || ""
+          }`.toLowerCase();
+          const nameB = `${b.user?.firstName || ""} ${
+            b.user?.lastName || ""
+          }`.toLowerCase();
+          return sortConfig.direction === "asc"
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
         }
-        if (sortConfig.key === 'doctor') {
-          const nameA = `${a.doctor?.firstName || ''} ${a.doctor?.lastName || ''}`.toLowerCase();
-          const nameB = `${b.doctor?.firstName || ''} ${b.doctor?.lastName || ''}`.toLowerCase();
-          return sortConfig.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        if (sortConfig.key === "doctor") {
+          const nameA = `${a.doctor?.firstName || ""} ${
+            a.doctor?.lastName || ""
+          }`.toLowerCase();
+          const nameB = `${b.doctor?.firstName || ""} ${
+            b.doctor?.lastName || ""
+          }`.toLowerCase();
+          return sortConfig.direction === "asc"
+            ? nameA.localeCompare(nameB)
+            : nameB.localeCompare(nameA);
         }
-        if (sortConfig.key === 'status') {
-          return sortConfig.direction === 'asc' 
-            ? a.status.localeCompare(b.status) 
+        if (sortConfig.key === "status") {
+          return sortConfig.direction === "asc"
+            ? a.status.localeCompare(b.status)
             : b.status.localeCompare(a.status);
         }
         return 0;
@@ -126,14 +146,16 @@ const filteredAppointments = useMemo(() => {
 
   // Handle sort
   const handleSort = useCallback((key) => {
-    setSortConfig(prevConfig => ({
+    setSortConfig((prevConfig) => ({
       key,
-      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc",
     }));
   }, []);
 
-
-   // Handle book new appointment
+  // Handle book new appointment
   const handleBookAppointment = useCallback(() => {
     setIsBookModalOpen(true);
   }, []);
@@ -143,62 +165,72 @@ const filteredAppointments = useMemo(() => {
     setIsBookModalOpen(false);
   }, []);
 
-  // Handle final appointment booking
-  const handleFinalBookAppointment = useCallback((appointmentData) => {
-    // Here you would typically save the appointment to your backend
-    console.log('Booking appointment:', appointmentData);
-    
-    // Example of what you might do:
-    // await createAppointment(appointmentData);
-    // refreshAppointments(); // Refresh the appointments list
-    
-    alert('Appointment booked successfully!');
-  }, []);
-
   // Get status icon and color
   const getStatusInfo = useCallback((status) => {
     switch (status) {
-      case 'Booked':
-        return { icon: Clock, color: 'text-blue-500', bgColor: 'bg-blue-100', text: 'Booked' };
-      case 'Completed':
-        return { icon: CheckCircle2, color: 'text-green-500', bgColor: 'bg-green-100', text: 'Completed' };
-      case 'Cancelled':
-        return { icon: XCircle, color: 'text-red-500', bgColor: 'bg-red-100', text: 'Cancelled' };
+      case "Booked":
+        return {
+          icon: Clock,
+          color: "text-blue-500",
+          bgColor: "bg-blue-100",
+          text: "Booked",
+        };
+      case "Completed":
+        return {
+          icon: CheckCircle2,
+          color: "text-green-500",
+          bgColor: "bg-green-100",
+          text: "Completed",
+        };
+      case "Cancelled":
+        return {
+          icon: XCircle,
+          color: "text-red-500",
+          bgColor: "bg-red-100",
+          text: "Cancelled",
+        };
       default:
-        return { icon: Clock, color: 'text-gray-500', bgColor: 'bg-gray-100', text: 'Unknown' };
+        return {
+          icon: Clock,
+          color: "text-gray-500",
+          bgColor: "bg-gray-100",
+          text: "Unknown",
+        };
     }
   }, []);
 
   // Format date for display
   const formatDate = useCallback((dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   }, []);
 
   return (
     <div className="space-y-6">
-   {/* Header Section */}
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Appointments Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Appointments Management
+          </h1>
           <p className="text-gray-600 mt-1">
             {filteredAppointments.length} appointments found
           </p>
         </div>
-      { profile?.role !== "doctor" && (
-         <button 
-          onClick={handleBookAppointment}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Book New Appointment</span>
-        </button>
-      )} 
+        {profile?.role !== "doctor" && (
+          <button
+            onClick={handleBookAppointment}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Book New Appointment</span>
+          </button>
+        )}
       </div>
 
       {/* Filters and Search Section */}
@@ -256,47 +288,47 @@ const filteredAppointments = useMemo(() => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('patient')}
+                  onClick={() => handleSort("patient")}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Patient</span>
-                    {sortConfig.key === 'patient' && (
-                      <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                    {sortConfig.key === "patient" && (
+                      <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('doctor')}
+                  onClick={() => handleSort("doctor")}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Doctor</span>
-                    {sortConfig.key === 'doctor' && (
-                      <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                    {sortConfig.key === "doctor" && (
+                      <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('date')}
+                  onClick={() => handleSort("date")}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Date & Time</span>
-                    {sortConfig.key === 'date' && (
-                      <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                    {sortConfig.key === "date" && (
+                      <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort('status')}
+                  onClick={() => handleSort("status")}
                 >
                   <div className="flex items-center space-x-1">
                     <span>Status</span>
-                    {sortConfig.key === 'status' && (
-                      <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
+                    {sortConfig.key === "status" && (
+                      <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
                     )}
                   </div>
                 </th>
@@ -308,9 +340,12 @@ const filteredAppointments = useMemo(() => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredAppointments.map((appointment) => {
                 const StatusIcon = getStatusInfo(appointment.status).icon;
-                
+
                 return (
-                  <tr key={appointment._id} className="hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={appointment._id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     {/* Patient Info */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-3">
@@ -319,11 +354,10 @@ const filteredAppointments = useMemo(() => {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {appointment.user?.firstName} {appointment.user?.lastName}
+                            {appointment.user?.firstName}{" "}
+                            {appointment.user?.lastName}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            Patient
-                          </div>
+                          <div className="text-sm text-gray-500">Patient</div>
                         </div>
                       </div>
                     </td>
@@ -336,10 +370,12 @@ const filteredAppointments = useMemo(() => {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            Dr. {appointment.doctor?.firstName} {appointment.doctor?.lastName}
+                            Dr. {appointment.doctor?.firstName}{" "}
+                            {appointment.doctor?.lastName}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {appointment.doctor?.doctorInfo?.specialization || 'Doctor'}
+                            {appointment.doctor?.doctorInfo?.specialization ||
+                              "Doctor"}
                           </div>
                         </div>
                       </div>
@@ -355,7 +391,8 @@ const filteredAppointments = useMemo(() => {
                         <div className="flex items-center space-x-2 text-sm text-gray-500">
                           <Clock className="w-4 h-4 text-gray-400" />
                           <span>
-                            {appointment.timeSlot?.startTime} - {appointment.timeSlot?.endTime}
+                            {appointment.timeSlot?.startTime} -{" "}
+                            {appointment.timeSlot?.endTime}
                           </span>
                         </div>
                       </div>
@@ -363,7 +400,11 @@ const filteredAppointments = useMemo(() => {
 
                     {/* Status */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusInfo(appointment.status).bgColor} ${getStatusInfo(appointment.status).color}`}>
+                      <div
+                        className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          getStatusInfo(appointment.status).bgColor
+                        } ${getStatusInfo(appointment.status).color}`}
+                      >
                         <StatusIcon className="w-3 h-3" />
                         <span>{getStatusInfo(appointment.status).text}</span>
                       </div>
@@ -371,16 +412,17 @@ const filteredAppointments = useMemo(() => {
 
                     {/* Actions */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                         {profile?.role === "doctor" && (
-        <button
-          onClick={() => handleCheckAppointment(appointment)}
-          className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 py-1 rounded hover:bg-green-50"
-        >
-          <CheckCircle2 className="w-4 h-4" />
-          <span>Check</span>
-        </button>
-      )}
+                      {appointment.status !== "Completed" ? (
+                        <div className="flex items-center space-x-2">
+                        {profile?.role === "doctor" && (
+                          <button
+                            onClick={() => handleCheckAppointment(appointment)}
+                            className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 py-1 rounded hover:bg-green-50"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Check</span>
+                          </button>
+                        )}
                         <button
                           // onClick={() => handleEdit(appointment)}
                           className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50"
@@ -388,13 +430,16 @@ const filteredAppointments = useMemo(() => {
                           <Edit className="w-4 h-4" />
                           <span>Edit</span>
                         </button>
-                        <button
+                        {/* <button
                           // onClick={() => handleDelete(appointment._id)}
                           className="flex items-center space-x-1 text-red-600 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </button> */}
                       </div>
+                      ): (
+                        <span className="text-green-700 font-medium">Checkup Completed</span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -409,31 +454,28 @@ const filteredAppointments = useMemo(() => {
             <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500 text-lg">No appointments found</p>
             <p className="text-gray-400 text-sm mt-1">
-              {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
-                ? 'Try adjusting your filters or search terms'
-                : 'No appointments scheduled yet'
-              }
+              {searchTerm || statusFilter !== "all" || dateFilter !== "all"
+                ? "Try adjusting your filters or search terms"
+                : "No appointments scheduled yet"}
             </p>
           </div>
         )}
       </div>
 
-    <BookAppointmentModal
+      <BookAppointmentModal
         isOpen={isBookModalOpen}
         onClose={handleCloseBookModal}
         setAppointments={setAppointments}
         appointments={appointments}
       />
 
-        <CaseHistoryModal
+      <CaseHistoryModal
         isOpen={isCaseModalOpen}
         onClose={() => setIsCaseModalOpen(false)}
         appointment={selectedAppointment}
         appointments={appointments}
         setAppointments={setAppointments}
-      
       />
     </div>
   );
 }
-
