@@ -123,22 +123,14 @@ export default function BookAppointmentModal({
     const selectedDateStr = new Date(date).toISOString().split("T")[0];
 
     // convert frontend time (24hr) into backend time (12hr format)
-    const convertedTime = formatTimeDisplay(timeSlot);
+    // const convertedTime = formatTimeDisplay(timeSlot);
 
     return bookedSlots.some((appt) => {
       const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
-      console.log("========================hhh============");
-      console.log(
-        convertedTime,
-        selectedDateStr,
-        apptDateStr,
-        appt.timeSlot?.startTime?.trim()
-      );
-      console.log("====================================");
-
+      
       return (
         apptDateStr === selectedDateStr &&
-        appt.timeSlot?.startTime?.trim() === convertedTime
+        appt.timeSlot?.startTime?.trim() === timeSlot
       );
     });
   };

@@ -7,7 +7,7 @@ const updateUser = require("../controllers/user/updateUser.controller");
 
 const router = express.Router();
 
-// Only admin can invite new users
+// Only admin can invite new users 
 router.post("/invite",upload.single("profileImage"), verifyToken, inviteUser);
 
 // Accept invite route

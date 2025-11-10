@@ -16,13 +16,10 @@ const updateUser = async (req, res) => {
       date_of_birth,
       address,
      password,
+     status,
       doctorInfo
     } = req.body;
 
-    console.log('===============doctor info=====================');
-    console.log(
-      doctorInfo);
-    console.log('===============doctor info=====================');
 
     if(!firstName || !lastName || !email || !phone || !gender || !date_of_birth || !address){
       return  res.status(400).json({
@@ -82,6 +79,10 @@ const updateUser = async (req, res) => {
       address
     };
 
+    // 2 way
+    if(status){
+      updateData.status = status;
+    }
     // 6. Hash password if provided
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);

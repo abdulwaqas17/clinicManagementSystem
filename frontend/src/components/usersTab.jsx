@@ -145,20 +145,14 @@ export default function UsersManagement() {
           bgColor: "bg-green-100",
           text: "Active",
         };
-      case "inactive":
+      case "disabled":
         return {
           icon: XCircle,
           color: "text-red-500",
           bgColor: "bg-red-100",
           text: "Inactive",
         };
-      case "pending":
-        return {
-          icon: Clock,
-          color: "text-yellow-500",
-          bgColor: "bg-yellow-100",
-          text: "Pending",
-        };
+     
       default:
         return {
           icon: Clock,
@@ -219,8 +213,7 @@ export default function UsersManagement() {
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
+              <option value="disabled">Disabled</option>
             </select>
 
             <select
