@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { confirmInvite } from "@/services/usersServices";
 
+
 export default function InvitePage() {
   const params = useParams();
   const id = params?.id; // URL se user id

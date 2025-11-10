@@ -39,7 +39,7 @@ export const inviteUser = async (data, token) => {
 
 
 // confirm invite service
-export const aconfirmInvite = async (id, password) => {
+export const confirmInvite = async (id, password) => {
   try {
     const response = await api.post(`/users/confirm/${id}`, { password });
     return response.data;
