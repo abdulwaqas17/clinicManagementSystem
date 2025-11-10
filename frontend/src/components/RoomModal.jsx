@@ -2,7 +2,7 @@ import { createRoom } from "@/services/roomServices";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-function RoomFormModal({ room, onClose, type, setRooms,isOpen }) {
+function RoomFormModal({ room, onClose, type, setRooms, isOpen }) {
   const [formData, setFormData] = useState({
     roomNumber: room?.roomNumber || "",
     name: room?.name || "",
@@ -41,13 +41,13 @@ function RoomFormModal({ room, onClose, type, setRooms,isOpen }) {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("User not authenticated");
-let res;
+      if (!token) toast.error("User not authenticated");
+      let res;
       if (type == "add") {
-      
         res = await createRoom(formData, token);
+      } else {
+        // Edit room logic can be added here
       }
-
 
       if (res.success) {
         toast.success(res.message || "Room created successfully");
@@ -57,21 +57,23 @@ let res;
         toast.error(res.message || "Failed to create room");
       }
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      toast.error(error || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">
-            {type== "edit" ? "Edit Room" : "Add New Room"}
+            {type == "edit" ? "Edit Room" : "Add New Room"}
           </h2>
           <p className="text-gray-600 mt-1">
-            {type== "edit" ? "Update room information" : "Enter room details"}
+            {type == "edit" ? "Update room information" : "Enter room details"}
           </p>
         </div>
 
@@ -155,7 +157,7 @@ let res;
               {loading ? (
                 <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4 mr-2"></span>
               ) : null}
-              {type== "edit" ? "Update Room" : "Add Room"}
+              {type == "edit" ? "Update Room" : "Add Room"}
             </button>
           </div>
         </form>

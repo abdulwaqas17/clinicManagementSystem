@@ -1,3 +1,12 @@
 birth calculate, formatedate, timeSlot = logic
 16:10 - 17:30 time logic 12 am,pm , 17:00 == 5:00 PM, = in all timing palces pending
 all date,today,upcoming = pending
+
+10-Nov-25
+10-1:30 = 4,5
+
+
+
+
+Question
+why FormData()

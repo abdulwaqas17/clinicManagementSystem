@@ -145,6 +145,10 @@ export default function CaseHistoryManagement() {
     today.setHours(0, 0, 0, 0);
     const followUp = new Date(caseItem.followUpDate);
     followUp.setHours(0, 0, 0, 0);
+
+    console.log('====================================');
+    console.log(today,followUp);
+    console.log('====================================');
     
     if (followUp < today) {
       return { text: 'Follow-up Overdue', color: 'text-red-500', bgColor: 'bg-red-100' };
@@ -172,10 +176,10 @@ export default function CaseHistoryManagement() {
             {caseHistory?.length || 0} medical cases recorded
           </p>
         </div>
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        {/* <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" />
           <span>Add New Case</span>
-        </button>
+        </button> */}
       </div>
 
       {/* Filters and Search Section */}
@@ -474,9 +478,9 @@ function CaseDetailsModal({ caseItem, onClose }) {
                     <p className="text-sm text-gray-500">
                       {caseItem.doctor?.doctorInfo?.specialization || 'General Practitioner'}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    {/* <p className="text-xs text-gray-400">
                       {caseItem.doctor?.doctorInfo?.experience || '0'} years experience
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               </div>

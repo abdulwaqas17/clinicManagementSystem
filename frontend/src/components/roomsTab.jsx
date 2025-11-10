@@ -221,7 +221,7 @@ export default function RoomsManagement() {
       </div>
 
       {/* Rooms Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredRooms.map((room) => {
           const StatusIcon = getStatusInfo(room.status).icon;
           

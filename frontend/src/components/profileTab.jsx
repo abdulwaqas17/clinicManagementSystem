@@ -436,6 +436,8 @@ function EditProfileModal({ profile, setProfile, onClose }) {
         newErrors.experience = "Experience cannot be negative";
       if (formData.doctorInfo.consultationFee < 0)
         newErrors.consultationFee = "Consultation fee cannot be negative";
+      if (formData.doctorInfo.schedule.length < 1) 
+        newErrors.schedule = "Schedule is required";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -462,12 +464,7 @@ function EditProfileModal({ profile, setProfile, onClose }) {
       }
 
       if (profile.role === "doctor" && formData.doctorInfo) {
-        console.log('==============json formdata======================');
-        console.log(formData.doctorInfo);
-        console.log('====================================');
-        console.log(JSON.stringify(formData.doctorInfo));
-        console.log('===============json formdata=====================');
-     
+
         formPayload.append("doctorInfo", JSON.stringify(formData.doctorInfo));
       }
 
@@ -531,10 +528,7 @@ function EditProfileModal({ profile, setProfile, onClose }) {
 
   // update schedule slot
   const updateScheduleSlot = (index, field, value) => {
-    console.log('================time value====================');
-    console.log(value);
-    console.log('================time value====================');
-
+    
     setFormData((prev) => ({
       ...prev,
       doctorInfo: {
@@ -859,6 +853,11 @@ function EditProfileModal({ profile, setProfile, onClose }) {
                       >
                         <X className="w-4 h-4" />
                       </button>
+                       {errors.schedule && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.schedule}
+                  </p>
+                )}
                     </div>
                   ))}
                 </div>

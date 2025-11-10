@@ -128,7 +128,7 @@ export default function AdminDashboardOverview() {
             bg: 'bg-green-100',
           },
           {
-            title: "Today's Appointments",
+            title: "Total Appointments",
             value: stats.allAppointments,
             icon: <Calendar className="w-6 h-6 text-orange-600" />,
             bg: 'bg-orange-100',
@@ -186,7 +186,7 @@ export default function AdminDashboardOverview() {
                     <p className="font-medium text-gray-900">
                       {appointment.user.firstName} {appointment.user.lastName}
                     </p>
-                    <p className="text-sm text-gray-500">{appointment.doctor.firstName}</p>
+                    <p className="text-sm text-gray-500">Dr {appointment.doctor.firstName} {appointment.doctor.lastName}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -225,13 +225,13 @@ export default function AdminDashboardOverview() {
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{doctor.firstName}</p>
+                    <p className="font-medium text-gray-900">{doctor.firstName} {doctor.lastName}</p>
                     <p className="text-sm text-gray-500">{doctor.doctorInfo.specialization}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-gray-900">
-                    239 patients
+                    {doctor.doctorInfo.experience} years
                   </p>
                   <div className="flex items-center space-x-1 justify-end mt-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />

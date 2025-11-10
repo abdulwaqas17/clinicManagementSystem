@@ -163,8 +163,8 @@ export default function BookAppointmentModal({
     try {
       setLoading(true);
       const timeSlot = {
-        startTime: formatTimeDisplay(selectedTimeSlot),
-        endTime: formatTimeDisplay(getEndTime(selectedTimeSlot)),
+        startTime: selectedTimeSlot,
+        endTime: getEndTime(selectedTimeSlot),
       };
 
       const res = await bookAppointment(
@@ -298,7 +298,7 @@ export default function BookAppointmentModal({
                           {doctor.doctorInfo?.specialization ||
                             "General Practitioner"}
                         </p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                        <div className="flex items-center space-x-2 mt-2 text-xs text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Briefcase className="w-3 h-3" />
                             <span>
@@ -312,12 +312,12 @@ export default function BookAppointmentModal({
                             </span>
                           </div>
                         </div>
-                        {doctor.city && (
+                        {/* {doctor.city && (
                           <div className="flex items-center space-x-1 mt-1 text-xs text-gray-500">
                             <MapPin className="w-3 h-3" />
                             <span>{doctor.city}</span>
                           </div>
-                        )}
+                        )} */}
                       </div>
                       <div className="flex items-center space-x-1 text-yellow-500">
                         <Star className="w-3 h-3 fill-current" />

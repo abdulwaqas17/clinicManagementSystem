@@ -24,6 +24,7 @@ import {
 import { useDoctorContext } from "@/context/doctorContext";
 import { useProfileContext } from "@/context/profileContext";
 import { AddUserModal } from "./inviteModal";
+import { formatTo12Hour } from "@/utils/utils";
 
 export default function DoctorsManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -131,7 +132,9 @@ export default function DoctorsManagement() {
     console.log("===================today,todaySchedule=================");
 
     if (todaySchedule) {
-      return `Available Today (${todaySchedule.startTime} - ${todaySchedule.endTime})`;
+      return `Available Today (${formatTo12Hour(todaySchedule.startTime)} - ${formatTo12Hour(
+        todaySchedule.endTime
+      )})`;
     }
     return "Available This Week";
   }, []);
