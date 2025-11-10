@@ -22,13 +22,14 @@ import { useProfileContext } from "@/context/profileContext";
 import BookAppointmentModal from "./BookAppointmentModal";
 import CaseHistoryModal from "./CaseHistoryModal";
 import { formatTo12Hour } from "@/utils/utils";
+import EditAppointmentModal from "./EditAppointmentModal";
 
 export default function AppointmentsManagement() {
   const { appointments, setAppointments } = useAppointmentContext();
 
   const { profile } = useProfileContext();
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
-
+const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
@@ -144,6 +145,12 @@ export default function AppointmentsManagement() {
 
     return result;
   }, [appointments, searchTerm, statusFilter, dateFilter, sortConfig]);
+
+  // Handle edit appointment
+  const handleEdit = useCallback((appointment) => {
+    setSelectedAppointment(appointment);
+    setIsEditModalOpen(true);
+  }, []);
 
   // Handle sort
   const handleSort = useCallback((key) => {
@@ -415,31 +422,39 @@ export default function AppointmentsManagement() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {appointment.status !== "Completed" ? (
                         <div className="flex items-center space-x-2">
-                        {profile?.role === "doctor" && (
+                          {profile?.role === "doctor" && (
+                            <button
+                              onClick={() =>
+                                handleCheckAppointment(appointment)
+                              }
+                              className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 py-1 rounded hover:bg-green-50"
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Check</span>
+                            </button>
+                          )}
                           <button
-                            onClick={() => handleCheckAppointment(appointment)}
-                            className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 py-1 rounded hover:bg-green-50"
+                            onClick={() => handleEdit(appointment)}
+                            className="flex items-center cursor-pointer space-x-1 text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50"
                           >
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>Check</span>
+                            <Edit className="w-4 h-4" />
+                            <span>Edit</span>
                           </button>
-                        )}
-                        <button
-                          // onClick={() => handleEdit(appointment)}
-                          className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50"
-                        >
-                          <Edit className="w-4 h-4" />
-                          <span>Edit</span>
-                        </button>
-                        {/* <button
+                          <button className="flex items-center cursor-pointer space-x-1 text-gray-600 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-50">
+                            <Eye className="w-4 h-4" />
+                            <span>View</span>
+                          </button>
+                          {/* <button
                           // onClick={() => handleDelete(appointment._id)}
                           className="flex items-center space-x-1 text-red-600 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button> */}
-                      </div>
-                      ): (
-                        <span className="text-green-700 font-medium">Checkup Completed</span>
+                        </div>
+                      ) : (
+                        <span className="text-green-700 font-medium">
+                          Checkup Completed
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -477,6 +492,16 @@ export default function AppointmentsManagement() {
         appointments={appointments}
         setAppointments={setAppointments}
       />
+
+    
+        <EditAppointmentModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          selectedAppointment={selectedAppointment}
+          setAppointments={setAppointments}
+         
+        />
+ 
     </div>
   );
 }

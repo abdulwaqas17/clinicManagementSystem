@@ -361,8 +361,8 @@ export default function ReceptionistManagement() {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-3">
                         <button
                           onClick={() => handleEdit(receptionist)}
                           className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-2 py-1 rounded hover:bg-blue-50"

@@ -150,7 +150,7 @@ export default function UsersManagement() {
           icon: XCircle,
           color: "text-red-500",
           bgColor: "bg-red-100",
-          text: "Inactive",
+          text: "Disabled",
         };
      
       default:
@@ -355,8 +355,8 @@ export default function UsersManagement() {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-3">
                         <button
                           onClick={() => handleEdit(user)}
                           className="flex items-center space-x-1 text-blue-600 hover:text-blue-700"
@@ -364,13 +364,13 @@ export default function UsersManagement() {
                           <Edit className="w-4 h-4" />
                           <span>Edit</span>
                         </button>
-                        {/* <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-700">
+                        <button className="flex items-center space-x-1 text-gray-600 hover:text-gray-700">
                           <Eye className="w-4 h-4" />
                           <span>View</span>
-                        </button> */}
-                        <button className="flex items-center space-x-1 text-red-600 hover:text-red-700">
-                          <Trash2 className="w-4 h-4" />
                         </button>
+                        {/* <button className="flex items-center space-x-1 text-red-600 hover:text-red-700">
+                          <Trash2 className="w-4 h-4" />
+                        </button> */}
                       </div>
                     </td>
                   </tr>

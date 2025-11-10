@@ -244,18 +244,7 @@ export default function DoctorsManagement() {
                       </p>
                     </div>
                   </div>
-                  <div
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      doctor.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : doctor.status === "invited"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {doctor.status?.charAt(0).toUpperCase() +
-                      doctor.status?.slice(1)}
-                  </div>
+                
                 </div>
 
                 {/* Doctor Details */}
@@ -266,14 +255,27 @@ export default function DoctorsManagement() {
                       <Briefcase className="w-4 h-4" />
                       <span>{experience}</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{age} years</span>
-                    </div>
+                  
+                       <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      doctor.status === "active"
+                        ? "bg-green-100 text-green-800"
+                        : doctor.status === "invited"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {doctor.status?.charAt(0).toUpperCase() +
+                      doctor.status?.slice(1)}
+                  </span>
                   </div>
 
                   {/* Contact Info */}
                   <div className="space-y-2">
+                      {/* <div className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{age} years</span>
+                    </div> */}
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Mail className="w-4 h-4 text-gray-400" />
                       <span className="truncate">{doctor.email}</span>
@@ -290,6 +292,8 @@ export default function DoctorsManagement() {
                     <span className="text-xs">{availability}</span>
                   </div>
 
+                 
+
                   {/* Consultation Fee */}
                   <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                     <div className="flex items-center space-x-1 text-green-600">
@@ -304,25 +308,27 @@ export default function DoctorsManagement() {
                       <span className="text-sm font-medium">4.8</span>
                     </div>
                   </div>
+                  
                 </div>
+                
               </div>
 
               {/* Actions */}
               {profile?.role === "admin" && (
                 <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
                   <div className="flex items-center justify-between">
-                    <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="flex items-center cursor-pointer space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
                       <Eye className="w-4 h-4" />
                       <span>View</span>
                     </button>
                     <button
                       onClick={() => handleEdit(doctor)}
-                      className="flex items-center space-x-1 text-green-600 hover:text-green-700 text-sm font-medium"
+                      className="flex items-center cursor-pointer space-x-1 text-green-600 hover:text-green-700 text-sm font-medium"
                     >
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
                     </button>
-                    <button className="flex items-center space-x-1 text-red-600 hover:text-red-700 text-sm font-medium">
+                    <button className="flex items-center cursor-pointer space-x-1 text-red-600 hover:text-red-700 text-sm font-medium">
                       <span>Disable</span>
                     </button>
                   </div>

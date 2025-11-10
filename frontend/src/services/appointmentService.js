@@ -1,5 +1,7 @@
 import api from "./api";
 
+
+// Get booked slots for a doctor
 export const getDoctorBookedSlots = async (doctorId, token) => {
   try {
     const response = await api.get(`/appointments/booked-slots/${doctorId}`, {
@@ -19,6 +21,8 @@ export const getDoctorBookedSlots = async (doctorId, token) => {
 };
 
 
+
+// Book an appointment
 export const bookAppointment = async (doctorId, date, timeSlot, token) => {
   try {
 
@@ -46,5 +50,18 @@ export const bookAppointment = async (doctorId, date, timeSlot, token) => {
     throw new Error(
       error.response?.data?.message || "Failed to book appointment."
     );
+  }
+};
+
+
+// Update an appointment
+export const updateAppointmentService = async (appointmentId, data, token) => {
+  try {
+    const response = await api.put(`/appointments/update/${appointmentId}`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to update appointment");
   }
 };
