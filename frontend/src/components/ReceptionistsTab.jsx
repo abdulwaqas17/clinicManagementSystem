@@ -25,16 +25,16 @@ import toast from "react-hot-toast";
 import NotFound from "@/app/not-found";
 import { inviteReceptionist } from "@/services/addMemberServices";
 import { AddUserModal } from "./inviteModal";
-
+import EditUserModal from "./UserEditModal";
 
 export default function ReceptionistManagement() {
-  const { receptionists,setReceptionists } = useReceptionistContext();
+  const { receptionists, setReceptionists } = useReceptionistContext();
   const { profile } = useProfileContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedReceptionist, setSelectedReceptionist] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [sortConfig, setSortConfig] = useState({
     key: "name",
     direction: "asc",
@@ -44,7 +44,7 @@ export default function ReceptionistManagement() {
     NotFound();
   }
 
-    // Handle sort
+  // Handle sort
   const handleSort = useCallback((key) => {
     setSortConfig((prevConfig) => ({
       key,
@@ -175,6 +175,12 @@ export default function ReceptionistManagement() {
     });
   }, []);
 
+  // Handle edit user
+  const handleEdit = useCallback((user) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  }, []);
+  
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -187,7 +193,10 @@ export default function ReceptionistManagement() {
             {receptionists?.length || 0} receptionists in system
           </p>
         </div>
-        <button onClick={()=> setIsAddModalOpen(true)} className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
           <Plus className="w-4 h-4" />
           <span>Add New Receptionist</span>
         </button>
@@ -394,18 +403,28 @@ export default function ReceptionistManagement() {
         )}
       </div>
 
-        <AddUserModal
-          isOpen={isAddModalOpen}
-          onClose={() => {
-            setIsAddModalOpen(false);
-          }}
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+        }}
+        role="receptionist"
+        receptionists={receptionists}
+        setReceptionists={setReceptionists}
+      />
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && selectedUser && (
+        <EditUserModal
           role="receptionist"
-          receptionists={receptionists}
-          setReceptionists={setReceptionists}
-      
+          selectedUser={selectedUser}
+          setReceptionists={setReceptionists}  
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedUser(null);
+          }}
         />
-      
+      )}
     </div>
   );
 }
-

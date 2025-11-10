@@ -21,6 +21,7 @@ import { useAppointmentContext } from "@/context/appointmentContext";
 import { useProfileContext } from "@/context/profileContext";
 import BookAppointmentModal from "./BookAppointmentModal";
 import CaseHistoryModal from "./CaseHistoryModal";
+import { formatTo12Hour } from "@/utils/utils";
 
 export default function AppointmentsManagement() {
   const { appointments, setAppointments } = useAppointmentContext();
@@ -391,8 +392,8 @@ export default function AppointmentsManagement() {
                         <div className="flex items-center space-x-2 text-sm text-gray-500">
                           <Clock className="w-4 h-4 text-gray-400" />
                           <span>
-                            {appointment.timeSlot?.startTime} -{" "}
-                            {appointment.timeSlot?.endTime}
+                            {formatTo12Hour(appointment.timeSlot?.startTime)} -{" "}
+                            {formatTo12Hour(appointment.timeSlot?.endTime)}
                           </span>
                         </div>
                       </div>

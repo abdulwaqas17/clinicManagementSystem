@@ -25,6 +25,7 @@ import { useDoctorContext } from "@/context/doctorContext";
 import { useProfileContext } from "@/context/profileContext";
 import { AddUserModal } from "./inviteModal";
 import { formatTo12Hour } from "@/utils/utils";
+import EditUserModal from "./UserEditModal";
 
 export default function DoctorsManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -34,7 +35,7 @@ export default function DoctorsManagement() {
   const [specializationFilter, setSpecializationFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
+ const [selectedUser, setSelectedUser] = useState(null);
 
   // Calculate age from date of birth
   const calculateAge = useCallback((dateOfBirth) => {
@@ -101,17 +102,9 @@ export default function DoctorsManagement() {
   }, [doctors, searchTerm, specializationFilter, statusFilter]);
 
   // Handle edit doctor
-  const handleEdit = useCallback((doctor) => {
-    setSelectedDoctor(doctor);
+  const handleEdit = useCallback((user) => {
+    setSelectedUser(user);
     setIsEditModalOpen(true);
-  }, []);
-
-  // Handle save edited doctor
-  const handleSaveEdit = useCallback((updatedDoctor) => {
-    // Here you would typically update the doctor in your context/backend
-    console.log("Updated doctor:", updatedDoctor);
-    setIsEditModalOpen(false);
-    setSelectedDoctor(null);
   }, []);
 
   // Format experience text
@@ -366,6 +359,19 @@ export default function DoctorsManagement() {
         doctors={doctors}
         setDoctors={setDoctors}
       />
+
+         {/* Edit User Modal */}
+      {isEditModalOpen && selectedUser && (
+        <EditUserModal
+        role="doctor"
+          selectedUser={selectedUser}
+          setDoctors={setDoctors}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedUser(null);
+          }}
+        />
+      )}
     </div>
   );
 }

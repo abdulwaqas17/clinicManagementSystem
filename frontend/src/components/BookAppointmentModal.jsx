@@ -45,11 +45,12 @@ export default function BookAppointmentModal({
 
     return doctors.filter(
       (doctor) =>
+        doctor.status == "active" && (
         doctor.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doctor.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doctor.doctorInfo?.specialization
           ?.toLowerCase()
-          .includes(searchTerm.toLowerCase())
+          .includes(searchTerm.toLowerCase()))
     );
   }, [doctors, searchTerm]);
 

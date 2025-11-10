@@ -20,10 +20,11 @@ import {
 import { useUsersContext } from "@/context/usersContext";
 import { useProfileContext } from "@/context/profileContext";
 import NotFound from "@/app/not-found";
+import EditUserModal from "./UserEditModal";
 
 // Import your actual context
 export default function UsersManagement() {
-  const { users } = useUsersContext();
+  const { users , setUsers} = useUsersContext();
   const { profile } = useProfileContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -132,14 +133,6 @@ export default function UsersManagement() {
   const handleEdit = useCallback((user) => {
     setSelectedUser(user);
     setIsEditModalOpen(true);
-  }, []);
-
-  // Handle save edited user
-  const handleSaveEdit = useCallback((updatedUser) => {
-    // Here you would typically update the user in your context/backend
-    console.log("Updated user:", updatedUser);
-    setIsEditModalOpen(false);
-    setSelectedUser(null);
   }, []);
 
   // Get status icon and color
@@ -411,8 +404,9 @@ export default function UsersManagement() {
       {/* Edit User Modal */}
       {isEditModalOpen && selectedUser && (
         <EditUserModal
-          user={selectedUser}
-          onSave={handleSaveEdit}
+        role="user"
+          selectedUser={selectedUser}
+          setUsers={setUsers}
           onClose={() => {
             setIsEditModalOpen(false);
             setSelectedUser(null);
@@ -423,175 +417,175 @@ export default function UsersManagement() {
   );
 }
 
-// Edit User Modal Component
-function EditUserModal({ user, onSave, onClose }) {
-  const [formData, setFormData] = useState({
-    firstName: user.firstName || "",
-    lastName: user.lastName || "",
-    email: user.email || "",
-    phone: user.phone || "",
-    date_of_birth: user.date_of_birth || "",
-    gender: user.gender || "male",
-    status: user.status || "active",
-    address: user.address || "",
-  });
+// // Edit User Modal Component
+// function EditUserModal({ user, onSave, onClose }) {
+//   const [formData, setFormData] = useState({
+//     firstName: user.firstName || "",
+//     lastName: user.lastName || "",
+//     email: user.email || "",
+//     phone: user.phone || "",
+//     date_of_birth: user.date_of_birth || "",
+//     gender: user.gender || "male",
+//     status: user.status || "active",
+//     address: user.address || "",
+//   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave({ ...user, ...formData });
-  };
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     onSave({ ...user, ...formData });
+//   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+//   const handleChange = (e) => {
+//     setFormData({
+//       ...formData,
+//       [e.target.name]: e.target.value,
+//     });
+//   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Edit Patient</h2>
-          <p className="text-gray-600 mt-1">Update patient information</p>
-        </div>
+//   return (
+//     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+//       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+//         <div className="p-6 border-b border-gray-200">
+//           <h2 className="text-xl font-bold text-gray-900">Edit Patient</h2>
+//           <p className="text-gray-600 mt-1">Update patient information</p>
+//         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Name *
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
+//         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+//           <div className="grid grid-cols-2 gap-4">
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 First Name *
+//               </label>
+//               <input
+//                 type="text"
+//                 name="firstName"
+//                 value={formData.firstName}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//               />
+//             </div>
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Last Name *
+//               </label>
+//               <input
+//                 type="text"
+//                 name="lastName"
+//                 value={formData.lastName}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//               />
+//             </div>
+//           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Email Address *
+//             </label>
+//             <input
+//               type="email"
+//               name="email"
+//               value={formData.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//             />
+//           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Phone Number *
+//             </label>
+//             <input
+//               type="tel"
+//               name="phone"
+//               value={formData.phone}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//             />
+//           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gender *
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
+//           <div className="grid grid-cols-2 gap-4">
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Date of Birth *
+//               </label>
+//               <input
+//                 type="date"
+//                 name="date_of_birth"
+//                 value={formData.date_of_birth}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//               />
+//             </div>
+//             <div>
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Gender *
+//               </label>
+//               <select
+//                 name="gender"
+//                 value={formData.gender}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//               >
+//                 <option value="male">Male</option>
+//                 <option value="female">Female</option>
+//                 <option value="other">Other</option>
+//               </select>
+//             </div>
+//           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Status
+//             </label>
+//             <select
+//               name="status"
+//               value={formData.status}
+//               onChange={handleChange}
+//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//             >
+//               <option value="active">Active</option>
+//               <option value="inactive">Inactive</option>
+//               <option value="pending">Pending</option>
+//             </select>
+//           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Address
-            </label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Address
+//             </label>
+//             <textarea
+//               name="address"
+//               value={formData.address}
+//               onChange={handleChange}
+//               rows={3}
+//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//             />
+//           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
+//           <div className="flex justify-end space-x-3 pt-4">
+//             <button
+//               type="button"
+//               onClick={onClose}
+//               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+//             >
+//               Cancel
+//             </button>
+//             <button
+//               type="submit"
+//               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+//             >
+//               Save Changes
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }

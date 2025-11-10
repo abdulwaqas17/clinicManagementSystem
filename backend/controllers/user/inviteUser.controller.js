@@ -143,7 +143,8 @@ if (doctorInfo && typeof doctorInfo === "string") {
     // Send email
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: email,
+      // to: email,
+      to:"www.waqas00001@gmail.com",
       subject: `Invitation to join the clinic as ${role}`,
       html: `
         <p>Dear ${firstName} ${lastName},</p>

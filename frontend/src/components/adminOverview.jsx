@@ -31,24 +31,19 @@ export default function AdminDashboardOverview() {
   const { doctors } = useDoctorContext();
   const { receptionists } = useReceptionistContext();
 
-  console.log('====================================');
-  console.log(profile);
-  console.log(users);
-  console.log(rooms);
-  console.log(doctors);
-  console.log(receptionists);
-  console.log(appointments);
-  console.log('====================================');
-
   //  Stats calculation (dynamic)
   const stats = useMemo(() => ({
     totalPatients: users?.length || 0,
     totalDoctors: doctors?.length || 0,
     totalReceptionist: receptionists?.length || 0,
-    allAppointments: appointments?.length || 0,
+    // allAppointments: appointments?.length || 0,
     availableRooms: rooms?.length || 0,
-    pendingTasks: appointments?.filter(a => a.status === 'Pending')?.length || 0,
+    completeAppointments: appointments?.filter(a => a.status === 'Completed' &&
+      new Date(a.date).toISOString().split('T')[0] == new Date().toISOString().split('T')[0]
+    )?.length || 0,
+    bookedAppointments: appointments?.filter(a => a.status === 'Booked')?.length || 0,
   }), [users, doctors, appointments, rooms]);
+
 
   //  Status helpers
   const getStatusIcon = status => {
@@ -64,6 +59,8 @@ export default function AdminDashboardOverview() {
     }
   };
 
+
+  // gtet status color
   const getStatusColor = status => {
     switch (status) {
       case 'Booked':
@@ -127,21 +124,22 @@ export default function AdminDashboardOverview() {
             icon: <Stethoscope className="w-6 h-6 text-green-600" />,
             bg: 'bg-green-100',
           },
-          {
-            title: "Total Appointments",
-            value: stats.allAppointments,
-            icon: <Calendar className="w-6 h-6 text-orange-600" />,
-            bg: 'bg-orange-100',
-          },
-          {
+            {
             title: 'Available Rooms',
             value: stats.availableRooms,
             icon: <Home className="w-6 h-6 text-purple-600" />,
             bg: 'bg-purple-100',
           },
           {
-            title: 'Monthly Revenue',
-            value: "21,000",
+            title: "Completed Appointments",
+            value: stats.completeAppointments,
+            icon: <Calendar className="w-6 h-6 text-orange-600" />,
+            bg: 'bg-orange-100',
+          },
+        
+          {
+            title: 'Booked Appointments',
+            value: stats.bookedAppointments,
             icon: <DollarSign className="w-6 h-6 text-green-600" />,
             bg: 'bg-green-100',
           }
