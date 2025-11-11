@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   X,
   Save,
@@ -8,29 +8,33 @@ import {
   Clock,
   User,
   Stethoscope,
-  AlertCircle
-} from 'lucide-react';
-import { useDoctorContext } from '@/context/doctorContext';
-import { getDoctorBookedSlots, updateAppointmentService } from '@/services/appointmentService';
+  AlertCircle,
+  Ban,
+} from "lucide-react";
+import { useDoctorContext } from "@/context/doctorContext";
+import {
+  getDoctorBookedSlots,
+  updateAppointmentService,
+} from "@/services/appointmentService";
+import { formatTo12Hour } from "@/utils/utils";
 
 export default function EditAppointmentModal({
   isOpen,
   onClose,
   setAppointments,
-  appointments,
-  selectedAppointment
+  selectedAppointment,
 }) {
   const [formData, setFormData] = useState({
-    doctor: '',
-    date: '',
+    doctor: "",
+    date: "",
     timeSlot: {
-      startTime: '',
-      endTime: ''
+      startTime: "",
+      endTime: "",
     },
-    status: 'Booked'
+    status: "Booked",
   });
-    const { doctors } = useDoctorContext();
 
+  const { doctors } = useDoctorContext();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [bookedSlots, setBookedSlots] = useState([]);
@@ -41,18 +45,20 @@ export default function EditAppointmentModal({
   useEffect(() => {
     if (isOpen && selectedAppointment) {
       const appointmentData = {
-        doctor: selectedAppointment.doctor?._id || '',
-        date: selectedAppointment.date ? new Date(selectedAppointment.date).toISOString().split('T')[0] : '',
+        doctor: selectedAppointment.doctor?._id || "",
+        date: selectedAppointment.date
+          ? new Date(selectedAppointment.date).toISOString().split("T")[0]
+          : "",
         timeSlot: {
-          startTime: selectedAppointment.timeSlot?.startTime || '',
-          endTime: selectedAppointment.timeSlot?.endTime || ''
+          startTime: selectedAppointment.timeSlot?.startTime || "",
+          endTime: selectedAppointment.timeSlot?.endTime || "",
         },
-        status: selectedAppointment.status || 'Booked'
+        status: selectedAppointment.status || "Booked",
       };
 
       setFormData(appointmentData);
       setErrors({});
-      
+
       // Fetch booked slots for the current doctor
       if (selectedAppointment.doctor?._id) {
         fetchBookedSlots(selectedAppointment.doctor._id);
@@ -64,17 +70,17 @@ export default function EditAppointmentModal({
   const fetchBookedSlots = async (doctorId) => {
     try {
       setFetchingSlots(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const slots = await getDoctorBookedSlots(doctorId, token);
-      
+
       // Filter out the current appointment from booked slots
-      const filteredSlots = slots.filter(slot => 
-        slot._id !== selectedAppointment?._id
+      const filteredSlots = slots.filter(
+        (slot) => slot._id !== selectedAppointment?._id
       );
-      
+
       setBookedSlots(filteredSlots);
     } catch (error) {
-      console.error('Error fetching booked slots:', error);
+      console.error("Error fetching booked slots:", error);
       setBookedSlots([]);
     } finally {
       setFetchingSlots(false);
@@ -83,11 +89,12 @@ export default function EditAppointmentModal({
 
   // Handle doctor change
   const handleDoctorChange = async (doctorId) => {
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       doctor: doctorId,
-      date: '',
-      timeSlot: { startTime: '', endTime: '' }
+      date: "",
+      timeSlot: { startTime: "", endTime: "" },
     }));
 
     if (doctorId) {
@@ -96,14 +103,15 @@ export default function EditAppointmentModal({
       setBookedSlots([]);
       setAvailableSlots([]);
     }
+
   };
 
   // Handle date change
   const handleDateChange = (date) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       date,
-      timeSlot: { startTime: '', endTime: '' }
+      timeSlot: { startTime: "", endTime: "" },
     }));
 
     if (date && formData.doctor) {
@@ -115,53 +123,62 @@ export default function EditAppointmentModal({
 
   // Generate available time slots based on doctor's schedule
   const generateAvailableSlots = (selectedDate, doctorId) => {
-    const selectedDoctor = doctors.find(d => d._id === doctorId);
+    const selectedDoctor = doctors.find((d) => d._id === doctorId);
     if (!selectedDoctor?.doctorInfo?.schedule) {
       setAvailableSlots([]);
       return;
     }
 
-    const selectedDay = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
-    const daySchedule = selectedDoctor.doctorInfo.schedule.find(s => s.day === selectedDay);
-    
+    const selectedDay = new Date(selectedDate).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+    const daySchedule = selectedDoctor.doctorInfo.schedule.find(
+      (s) => s.day === selectedDay
+    );
+
     if (!daySchedule) {
       setAvailableSlots([]);
       return;
     }
 
     // Get booked slots for this date
-    const dateBookedSlots = bookedSlots.filter(slot => 
-      new Date(slot.date).toDateString() === new Date(selectedDate).toDateString()
+    const dateBookedSlots = bookedSlots.filter(
+      (slot) =>
+        new Date(slot.date).toDateString() ===
+        new Date(selectedDate).toDateString()
     );
 
     // Generate 30-minute slots between start and end time
     const slots = [];
     const startTime = new Date(`${selectedDate}T${daySchedule.startTime}`);
     const endTime = new Date(`${selectedDate}T${daySchedule.endTime}`);
-    
+
     let currentTime = new Date(startTime);
-    
+
     while (currentTime < endTime) {
       const slotStart = currentTime.toTimeString().slice(0, 5);
-      const slotEnd = new Date(currentTime.getTime() + 30 * 60000).toTimeString().slice(0, 5);
-      
+      const slotEnd = new Date(currentTime.getTime() + 30 * 60000)
+        .toTimeString()
+        .slice(0, 5);
+
       // Check if slot is booked
-      const isBooked = dateBookedSlots.some(bookedSlot => 
-        bookedSlot.timeSlot.startTime === slotStart
+      const isBooked = dateBookedSlots.some(
+        (bookedSlot) => bookedSlot.timeSlot.startTime === slotStart
       );
 
       // Check if slot conflicts with current appointment (if editing)
-      const isCurrentAppointment = selectedAppointment && 
+      const isCurrentAppointment =
+        selectedAppointment &&
         selectedAppointment.timeSlot.startTime === slotStart;
 
-      if (!isBooked || isCurrentAppointment) {
-        slots.push({
-          startTime: slotStart,
-          endTime: slotEnd,
-          display: `${slotStart} - ${slotEnd}`
-        });
-      }
-      
+      slots.push({
+        startTime: slotStart,
+        endTime: slotEnd,
+        display: `${formatTo12Hour(slotStart)} - ${formatTo12Hour(slotEnd)}`,
+        isBooked: isBooked && !isCurrentAppointment,
+        isAvailable: !isBooked || isCurrentAppointment,
+      });
+
       currentTime = new Date(currentTime.getTime() + 30 * 60000);
     }
 
@@ -170,14 +187,16 @@ export default function EditAppointmentModal({
 
   // Handle time slot selection
   const handleTimeSlotChange = (startTime) => {
-    const selectedSlot = availableSlots.find(slot => slot.startTime === startTime);
-    if (selectedSlot) {
-      setFormData(prev => ({
+    const selectedSlot = availableSlots.find(
+      (slot) => slot.startTime === startTime
+    );
+    if (selectedSlot && selectedSlot.isAvailable) {
+      setFormData((prev) => ({
         ...prev,
         timeSlot: {
           startTime: selectedSlot.startTime,
-          endTime: selectedSlot.endTime
-        }
+          endTime: selectedSlot.endTime,
+        },
       }));
     }
   };
@@ -186,21 +205,10 @@ export default function EditAppointmentModal({
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.doctor) newErrors.doctor = 'Doctor is required';
-    if (!formData.date) newErrors.date = 'Date is required';
-    if (!formData.timeSlot.startTime) newErrors.timeSlot = 'Time slot is required';
-
-    // Check if selected slot is available
-    if (formData.date && formData.timeSlot.startTime) {
-      const isSlotBooked = bookedSlots.some(slot => 
-        new Date(slot.date).toDateString() === new Date(formData.date).toDateString() &&
-        slot.timeSlot.startTime === formData.timeSlot.startTime
-      );
-
-      if (isSlotBooked) {
-        newErrors.timeSlot = 'This time slot is already booked';
-      }
-    }
+    if (!formData.doctor) newErrors.doctor = "Doctor is required";
+    if (!formData.date) newErrors.date = "Date is required";
+    if (!formData.timeSlot.startTime)
+      newErrors.timeSlot = "Time slot is required";
 
     return newErrors;
   };
@@ -208,7 +216,7 @@ export default function EditAppointmentModal({
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -219,7 +227,7 @@ export default function EditAppointmentModal({
     setErrors({});
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const result = await updateAppointmentService(
         selectedAppointment._id,
         formData,
@@ -227,14 +235,13 @@ export default function EditAppointmentModal({
       );
 
       // Update appointments in context
-      setAppointments(prev => 
-        prev.map(apt => 
+      setAppointments((prev) =>
+        prev.map((apt) =>
           apt._id === selectedAppointment._id ? result.data : apt
         )
       );
 
       onClose();
-      
     } catch (error) {
       setErrors({ submit: error.message });
     } finally {
@@ -244,14 +251,18 @@ export default function EditAppointmentModal({
 
   if (!isOpen) return null;
 
-  const selectedDoctor = doctors.find(d => d._id === formData.doctor);
-  const selectedDay = formData.date ? 
-    new Date(formData.date).toLocaleDateString('en-US', { weekday: 'long' }) : '';
+  const selectedDoctor = doctors.find((d) => d._id === formData.doctor);
+  const selectedDay = formData.date 
+    ? new Date(formData.date).toLocaleDateString("en-US", { weekday: "long" })
+    : "";
+
+  const selectedDaySchedule = selectedDoctor?.doctorInfo?.schedule?.find(
+    (s) => s.day === selectedDay
+  );
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
@@ -263,7 +274,9 @@ export default function EditAppointmentModal({
                 Edit Appointment
               </h2>
               <p className="text-sm text-gray-500">
-                Update appointment details for {selectedAppointment?.user?.firstName} {selectedAppointment?.user?.lastName}
+                Update appointment details for{" "}
+                {selectedAppointment?.user?.firstName}{" "}
+                {selectedAppointment?.user?.lastName}
               </p>
             </div>
           </div>
@@ -276,7 +289,6 @@ export default function EditAppointmentModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          
           {/* Doctor Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
@@ -287,17 +299,21 @@ export default function EditAppointmentModal({
               value={formData.doctor}
               onChange={(e) => handleDoctorChange(e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.doctor ? 'border-red-300' : 'border-gray-300'
+                errors.doctor ? "border-red-300" : "border-gray-300"
               }`}
             >
               <option value="">Select a Doctor</option>
               {doctors.map((doctor) => (
+                doctor.status === "active" && (
                 <option key={doctor._id} value={doctor._id}>
-                  Dr. {doctor.firstName} {doctor.lastName} - {doctor.doctorInfo?.specialization}
-                </option>
+                  Dr. {doctor.firstName} {doctor.lastName} -{" "}
+                  {doctor.doctorInfo?.specialization}
+                </option>)
               ))}
             </select>
-            {errors.doctor && <p className="text-red-500 text-xs mt-1">{errors.doctor}</p>}
+            {errors.doctor && (
+              <p className="text-red-500 text-xs mt-1">{errors.doctor}</p>
+            )}
           </div>
 
           {/* Date Selection */}
@@ -310,25 +326,27 @@ export default function EditAppointmentModal({
               type="date"
               value={formData.date}
               onChange={(e) => handleDateChange(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.date ? 'border-red-300' : 'border-gray-300'
+                errors.date ? "border-red-300" : "border-gray-300"
               }`}
             />
-            {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
-            
+            {errors.date && (
+              <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+            )}
+
             {/* Doctor Availability Info */}
             {formData.doctor && formData.date && selectedDoctor && (
-              <div className="mt-2 text-sm text-gray-600">
-                {selectedDoctor.doctorInfo?.schedule?.find(s => s.day === selectedDay) ? (
-                  <div className="flex items-center space-x-1 text-green-600">
+              <div className="mt-2 text-sm">
+                {selectedDaySchedule ? (
+                  <div className="flex items-center space-x-2 text-green-600">
                     <Clock className="w-4 h-4" />
                     <span>
-                      Available on {selectedDay}: {selectedDoctor.doctorInfo.schedule.find(s => s.day === selectedDay)?.startTime} - {selectedDoctor.doctorInfo.schedule.find(s => s.day === selectedDay)?.endTime}
+                      Available on {selectedDay}: {formatTo12Hour(selectedDaySchedule.startTime)} - {formatTo12Hour(selectedDaySchedule.endTime)}
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-1 text-red-600">
+                  <div className="flex items-center space-x-2 text-red-600">
                     <AlertCircle className="w-4 h-4" />
                     <span>Not available on {selectedDay}</span>
                   </div>
@@ -338,38 +356,78 @@ export default function EditAppointmentModal({
           </div>
 
           {/* Time Slot Selection */}
-          {formData.doctor && formData.date && availableSlots.length > 0 && (
+          {formData.doctor && formData.date && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-gray-400" />
                 <span>Select Time Slot *</span>
               </label>
-              
+
               {fetchingSlots ? (
                 <div className="text-center py-4">
                   <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  <p className="text-sm text-gray-500 mt-2">Loading available slots...</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Loading available slots...
+                  </p>
+                </div>
+              ) : availableSlots.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-1">
+                    {availableSlots.map((slot, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleTimeSlotChange(slot.startTime)}
+                        disabled={slot.isBooked}
+                        className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
+                          slot.isBooked
+                            ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                            : formData.timeSlot.startTime === slot.startTime
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-blue-500 hover:text-blue-600"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>{slot.display}</span>
+                          {slot.isBooked && (
+                            <Ban className="w-4 h-4 text-red-500" />
+                          )}
+                        </div>
+                        {slot.isBooked && (
+                          <div className="text-xs text-red-500 mt-1">
+                            Booked
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Legend */}
+                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-3 h-3 bg-blue-600 rounded"></div>
+                      <span>Selected</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-3 h-3 bg-white border border-gray-300 rounded"></div>
+                      <span>Available</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-3 h-3 bg-gray-100 rounded"></div>
+                      <span>Booked</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
-                  {availableSlots.map((slot, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleTimeSlotChange(slot.startTime)}
-                      className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
-                        formData.timeSlot.startTime === slot.startTime
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500 hover:text-blue-600'
-                      }`}
-                    >
-                      {slot.display}
-                    </button>
-                  ))}
+                <div className="text-center py-4 text-gray-500">
+                  <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p>No time slots available for this date</p>
                 </div>
               )}
-              
-              {errors.timeSlot && <p className="text-red-500 text-xs mt-1">{errors.timeSlot}</p>}
+
+              {errors.timeSlot && (
+                <p className="text-red-500 text-xs mt-1">{errors.timeSlot}</p>
+              )}
             </div>
           )}
 
@@ -380,11 +438,12 @@ export default function EditAppointmentModal({
             </label>
             <select
               value={formData.status}
-              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, status: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Booked">Booked</option>
-              <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
           </div>
@@ -392,13 +451,27 @@ export default function EditAppointmentModal({
           {/* Selected Appointment Summary */}
           {formData.doctor && formData.date && formData.timeSlot.startTime && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 mb-2">Appointment Summary</h4>
+              <h4 className="font-medium text-blue-900 mb-2">
+                Appointment Summary
+              </h4>
               <div className="space-y-1 text-sm text-blue-800">
-                <p><strong>Doctor:</strong> Dr. {selectedDoctor?.firstName} {selectedDoctor?.lastName}</p>
-                <p><strong>Date:</strong> {new Date(formData.date).toLocaleDateString()}</p>
-                <p><strong>Time:</strong> {formData.timeSlot.startTime} - {formData.timeSlot.endTime}</p>
-                <p><strong>Duration:</strong> 30 minutes</p>
-                <p><strong>Status:</strong> {formData.status}</p>
+                <p>
+                  <strong>Doctor:</strong> Dr. {selectedDoctor?.firstName}{" "}
+                  {selectedDoctor?.lastName}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(formData.date).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Time:</strong> {formatTo12Hour(formData.timeSlot.startTime)} - {formatTo12Hour(formData.timeSlot.endTime)}
+                </p>
+                <p>
+                  <strong>Duration:</strong> 30 minutes
+                </p>
+                <p>
+                  <strong>Status:</strong> {formData.status}
+                </p>
               </div>
             </div>
           )}
@@ -422,7 +495,12 @@ export default function EditAppointmentModal({
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.doctor || !formData.date || !formData.timeSlot.startTime}
+              disabled={
+                loading ||
+                !formData.doctor ||
+                !formData.date ||
+                !formData.timeSlot.startTime
+              }
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
             >
               {loading ? (

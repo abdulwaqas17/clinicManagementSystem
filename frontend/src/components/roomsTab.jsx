@@ -23,7 +23,7 @@ import RoomFormModal from './RoomModal';
 export default function RoomsManagement() {
   const { rooms ,setRooms} = useRoomContext();
   const { profile } = useProfileContext();
-  
+  const [type, setType] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -85,12 +85,15 @@ export default function RoomsManagement() {
   // Handle add new room (admin only)
   const handleAddRoom = useCallback(() => {
     setSelectedRoom(null);
+    setType('add');
     setIsAddModalOpen(true);
+
   }, []);
 
   // Handle edit room (admin only)
   const handleEdit = useCallback((room) => {
     setSelectedRoom(room);
+    setType('edit');
     setIsAddModalOpen(true);
   }, []);
 
@@ -266,7 +269,7 @@ export default function RoomsManagement() {
               {/* Actions */}
               <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
                 <div className="flex items-center justify-between">
-                  <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  <button className="flex items-center cursor-pointer space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
                     <Eye className="w-4 h-4" />
                     <span>View</span>
                   </button>
@@ -275,7 +278,7 @@ export default function RoomsManagement() {
                   {profile?.role === 'admin' && (
                     <button 
                       onClick={() => handleEdit(room)}
-                      className="flex items-center space-x-1 text-green-600 hover:text-green-700 text-sm font-medium"
+                      className="flex items-center cursor-pointer space-x-1 text-green-600 hover:text-green-700 text-sm font-medium"
                     >
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
@@ -286,7 +289,7 @@ export default function RoomsManagement() {
                   {profile?.role === 'admin' && (
                     <button 
                       onClick={() => handleDelete(room._id)}
-                      className="flex items-center space-x-1 text-red-600 hover:text-red-700 text-sm font-medium"
+                      className="flex items-center cursor-pointer space-x-1 text-red-600 hover:text-red-700 text-sm font-medium"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -326,11 +329,10 @@ export default function RoomsManagement() {
         <RoomFormModal
           room={selectedRoom}
           setRooms={setRooms}
-          isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false);
           }}
-          type="add"
+          type={type}
         />
       )}
     </div>

@@ -57,7 +57,7 @@ export const bookAppointment = async (doctorId, date, timeSlot, token) => {
 // Update an appointment
 export const updateAppointmentService = async (appointmentId, data, token) => {
   try {
-    const response = await api.put(`/appointments/update/${appointmentId}`, data, {
+    const response = await api.put(`/appointments/edit/${appointmentId}`, data, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;

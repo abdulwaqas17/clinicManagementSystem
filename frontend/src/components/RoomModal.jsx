@@ -1,8 +1,8 @@
-import { createRoom } from "@/services/roomServices";
+import { createRoom, updateRoom } from "@/services/roomServices"; // 👈 updateRoom bhi import kro
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-function RoomFormModal({ room, onClose, type, setRooms, isOpen }) {
+function RoomFormModal({ room, onClose, type, setRooms }) {
   const [formData, setFormData] = useState({
     roomNumber: room?.roomNumber || "",
     name: room?.name || "",
@@ -42,38 +42,49 @@ function RoomFormModal({ room, onClose, type, setRooms, isOpen }) {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) toast.error("User not authenticated");
+
       let res;
-      if (type == "add") {
+      if (type === "add") {
+        //  Add Room
         res = await createRoom(formData, token);
+
+        setRooms((prev) => [...prev, res.data]);
       } else {
-        // Edit room logic can be added here
+        
+        //  Edit Room
+        res = await updateRoom(room._id, formData, token);
+        setRooms((prev) =>
+          prev.map((r) => (r._id === room._id ? res.data : r))
+        );
       }
 
       if (res.success) {
-        toast.success(res.message || "Room created successfully");
-        setRooms((prev) => [...prev, res.data]);
+        toast.success(
+          res.message ||
+            (type === "edit"
+              ? "Room updated successfully"
+              : "Room created successfully")
+        );
         onClose();
       } else {
-        toast.error(res.message || "Failed to create room");
+        toast.error(res.message || "Operation failed");
       }
     } catch (error) {
-      toast.error(error || "Something went wrong");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">
-            {type == "edit" ? "Edit Room" : "Add New Room"}
+            {type === "edit" ? "Edit Room" : "Add New Room"}
           </h2>
           <p className="text-gray-600 mt-1">
-            {type == "edit" ? "Update room information" : "Enter room details"}
+            {type === "edit" ? "Update room information" : "Enter room details"}
           </p>
         </div>
 
@@ -157,7 +168,7 @@ function RoomFormModal({ room, onClose, type, setRooms, isOpen }) {
               {loading ? (
                 <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4 mr-2"></span>
               ) : null}
-              {type == "edit" ? "Update Room" : "Add Room"}
+              {type === "edit" ? "Update Room" : "Add Room"}
             </button>
           </div>
         </form>

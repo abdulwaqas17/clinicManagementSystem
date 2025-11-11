@@ -350,11 +350,14 @@ export function AddUserModal({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select a Room</option>
-                    {rooms.map((room) => (
-                      <option key={room._id} value={room._id}>
-                        {room.name || `Room ${room.roomNumber}`}
-                      </option>
-                    ))}
+                    {rooms.map(
+                      (room) =>
+                        room.status === "available" && (
+                          <option key={room._id} value={room._id}>
+                            {room.name || `Room ${room.roomNumber}`}
+                          </option>
+                        )
+                    )}
                   </select>
                 </div>
 

@@ -54,22 +54,49 @@ export default function BookAppointmentModal({
     );
   }, [doctors, searchTerm]);
 
-  // Generate time slots (9 AM to 5 PM, 30-minute intervals)
-  const timeSlots = useMemo(() => {
-    const slots = [];
-    for (let hour = 9; hour <= 17; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const timeString = `${hour.toString().padStart(2, "0")}:${minute
-          .toString()
-          .padStart(2, "0")}`;
-        slots.push(timeString);
-      }
+  // Get available time slots based on doctor's schedule for selected day
+  const availableTimeSlots = useMemo(() => {
+    if (!selectedDoctor || !selectedDate) return [];
+
+    const dayOfWeek = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+    
+    // Find doctor's schedule for the selected day
+    const doctorSchedule = selectedDoctor.doctorInfo?.schedule?.find(
+      schedule => schedule.day === dayOfWeek
+    );
+
+    if (!doctorSchedule) {
+      // toast.error(`Doctor is not available on ${dayOfWeek}`);
+      return [];
     }
-    console.log("===================slots=================");
-    console.log(slots);
-    console.log("===================slots=================");
+
+    const { startTime, endTime } = doctorSchedule;
+    
+    // Convert time strings to minutes for easier calculation
+    const startMinutes = parseInt(startTime.split(':')[0]) * 60 + parseInt(startTime.split(':')[1]);
+    const endMinutes = parseInt(endTime.split(':')[0]) * 60 + parseInt(endTime.split(':')[1]);
+    
+    const slots = [];
+    const slotDuration = 30; // 30 minutes per slot
+    
+    for (let time = startMinutes; time < endMinutes; time += slotDuration) {
+      const hours = Math.floor(time / 60);
+      const minutes = time % 60;
+      const timeString = `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}`;
+      
+      slots.push(timeString);
+    }
+
+    // console.log("===================availableTimeSlots=================");
+    // console.log("Day:", dayOfWeek);
+    // console.log("Schedule:", doctorSchedule);
+    // console.log("Generated Slots:", slots);
+    // console.log("===================availableTimeSlots=================");
+    
     return slots;
-  }, []);
+  }, [selectedDoctor, selectedDate]);
 
   // Calculate end time based on start time (30 minutes duration)
   const getEndTime = useCallback((startTime) => {
@@ -96,6 +123,8 @@ export default function BookAppointmentModal({
     }
     setSelectedDoctor(doctor);
     setCurrentStep(2);
+    setSelectedDate("");
+    setSelectedTimeSlot("");
 
     try {
       const slots = await getDoctorBookedSlots(doctor._id, token);
@@ -122,9 +151,6 @@ export default function BookAppointmentModal({
     // normalize date comparison (UTC vs local fix)
     const selectedDateStr = new Date(date).toISOString().split("T")[0];
 
-    // convert frontend time (24hr) into backend time (12hr format)
-    // const convertedTime = formatTimeDisplay(timeSlot);
-
     return bookedSlots.some((appt) => {
       const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
       
@@ -135,9 +161,32 @@ export default function BookAppointmentModal({
     });
   };
 
+  // Check if doctor is available on selected date
+  const isDoctorAvailableOnDate = useCallback((date) => {
+    if (!selectedDoctor || !date) return false;
+    
+    const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+    return selectedDoctor.doctorInfo?.schedule?.some(
+      schedule => schedule.day === dayOfWeek
+    );
+  }, [selectedDoctor]);
+
+  // Handle date selection
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    setSelectedTimeSlot(""); // Reset time slot when date changes
+    
+    if (!isDoctorAvailableOnDate(date)) {
+      const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+      toast.error(`Doctor is not available on ${dayOfWeek}`);
+    }
+  };
+
   // Handle back to doctor selection
   const handleBackToDoctors = useCallback(() => {
     setCurrentStep(1);
+    setSelectedDate("");
+    setSelectedTimeSlot("");
   }, []);
 
   // Book Appointment
@@ -150,6 +199,13 @@ export default function BookAppointmentModal({
 
     if (!selectedDoctor || !selectedDate || !selectedTimeSlot) {
       toast.error("Please select doctor, date, and time slot");
+      return;
+    }
+
+    // Double check doctor availability
+    if (!isDoctorAvailableOnDate(selectedDate)) {
+      const dayOfWeek = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
+      toast.error(`Doctor is not available on ${dayOfWeek}`);
       return;
     }
 
@@ -305,12 +361,17 @@ export default function BookAppointmentModal({
                             </span>
                           </div>
                         </div>
-                        {/* {doctor.city && (
-                          <div className="flex items-center space-x-1 mt-1 text-xs text-gray-500">
-                            <MapPin className="w-3 h-3" />
-                            <span>{doctor.city}</span>
+                        {/* Doctor Schedule Summary */}
+                        {doctor.doctorInfo?.schedule && (
+                          <div className="mt-2 text-xs text-gray-500">
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>
+                                Available: {doctor.doctorInfo.schedule.map(s => s.day.substring(0, 3)).join(", ")}
+                              </span>
+                            </div>
                           </div>
-                        )} */}
+                        )}
                       </div>
                       <div className="flex items-center space-x-1 text-yellow-500">
                         <Star className="w-3 h-3 fill-current" />
@@ -365,11 +426,19 @@ export default function BookAppointmentModal({
                         • ${selectedDoctor.doctorInfo?.consultationFee}{" "}
                         consultation
                       </p>
+                      {/* Doctor Schedule */}
+                      {selectedDoctor.doctorInfo?.schedule && (
+                        <div className="mt-1 text-xs text-gray-600">
+                          <strong>Available Days:</strong> {selectedDoctor.doctorInfo.schedule.map(s => 
+                            `${s.day} (${formatTimeDisplay(s.startTime)}-${formatTimeDisplay(s.endTime)})`
+                          ).join(", ")}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button
                     onClick={handleBackToDoctors}
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
+                    className="flex items-center cursor-pointer space-x-1 text-blue-600 hover:text-blue-700 text-sm"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Change Doctor</span>
@@ -387,10 +456,26 @@ export default function BookAppointmentModal({
                     <input
                       type="date"
                       value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
+                      onChange={(e) => handleDateSelect(e.target.value)}
                       min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        selectedDate && !isDoctorAvailableOnDate(selectedDate) 
+                          ? "border-red-300 bg-red-50" 
+                          : "border-gray-300"
+                      }`}
                     />
+                    {selectedDate && (
+                      <div className={`text-sm ${
+                        isDoctorAvailableOnDate(selectedDate) 
+                          ? "text-green-600" 
+                          : "text-red-600"
+                      }`}>
+                        {isDoctorAvailableOnDate(selectedDate) 
+                          ? `✓ Available on ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' })}`
+                          : `✗ Not available on ${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' })}`
+                        }
+                      </div>
+                    )}
                     <div className="text-sm text-gray-500">
                       Select your preferred appointment date
                     </div>
@@ -402,32 +487,44 @@ export default function BookAppointmentModal({
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Select Time Slot
                   </h3>
-                  <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
-                    {timeSlots.map((timeSlot) => {
-                      const booked = isSlotBooked(timeSlot, selectedDate);
-                      return (
-                        <button
-                          key={timeSlot}
-                          disabled={booked}
-                          onClick={() => setSelectedTimeSlot(timeSlot)}
-                          className={`p-3 border rounded-lg text-sm font-medium transition-all ${
-                            booked
-                              ? "bg-red-100 text-red-400 cursor-not-allowed opacity-60"
-                              : selectedTimeSlot === timeSlot
-                              ? "border-blue-500 bg-blue-50 text-blue-700"
-                              : "border-gray-200 hover:border-blue-300 hover:bg-blue-25"
-                          }`}
-                        >
-                          {formatTimeDisplay(timeSlot)}
-                          {booked && (
-                            <span className="block text-xs text-red-500">
-                              (Booked)
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {selectedDate && isDoctorAvailableOnDate(selectedDate) ? (
+                    <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                      {availableTimeSlots.map((timeSlot) => {
+                        const booked = isSlotBooked(timeSlot, selectedDate);
+                        return (
+                          <button
+                            key={timeSlot}
+                            disabled={booked}
+                            onClick={() => setSelectedTimeSlot(timeSlot)}
+                            className={`p-3 border rounded-lg text-sm font-medium transition-all ${
+                              booked
+                                ? "bg-red-100 text-red-400 cursor-not-allowed opacity-60"
+                                : selectedTimeSlot === timeSlot
+                                ? "border-blue-500 bg-blue-50 text-blue-700"
+                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-25"
+                            }`}
+                          >
+                            {formatTimeDisplay(timeSlot)}
+                            {booked && (
+                              <span className="block text-xs text-red-500">
+                                (Booked)
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                      <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500">
+                        {selectedDate 
+                          ? "Doctor is not available on selected date" 
+                          : "Please select a date first"
+                        }
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -449,6 +546,9 @@ export default function BookAppointmentModal({
                             day: "numeric",
                           })}
                         </span>
+                        {!isDoctorAvailableOnDate(selectedDate) && (
+                          <span className="text-red-500 text-xs">(Not Available)</span>
+                        )}
                       </div>
                     )}
                     {selectedTimeSlot && (
@@ -475,7 +575,7 @@ export default function BookAppointmentModal({
                 </button>
                 <button
                   onClick={handleBookAppointment}
-                  disabled={!selectedDate || !selectedTimeSlot}
+                  disabled={!selectedDate || !selectedTimeSlot || !isDoctorAvailableOnDate(selectedDate)}
                   className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
                   <CheckCircle2 className="w-4 h-4" />
