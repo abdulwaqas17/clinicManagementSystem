@@ -14,6 +14,7 @@ const EditUserModal = ({
   setUsers,
   setDoctors,
   setReceptionists,
+  setProfile,
 }) => {
   const { rooms } = useRoomContext();
 
@@ -50,12 +51,19 @@ const EditUserModal = ({
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
 
+  console.log("=================selected user===================");
+  console.log(selectedUser);
+  console.log("=================selected user===================");
+
   // Prefill user data when editing
   useEffect(() => {
     if (selectedUser) {
+      // Remove hashed password field
+      const { password, ...cleanUser } = selectedUser;
+
       const userData = {
-        ...selectedUser,
-        doctorInfo: selectedUser.doctorInfo || {
+        ...cleanUser,
+        doctorInfo: cleanUser.doctorInfo || {
           specialization: "",
           doctorRoom: "",
           experience: "",
@@ -63,9 +71,9 @@ const EditUserModal = ({
           schedule: [{ day: "Monday", startTime: "09:00", endTime: "17:00" }],
         },
       };
-      
+
       setFormData(userData);
-      
+
       // Set image preview if profile image exists
       if (selectedUser.profileImage) {
         setImagePreview(selectedUser.profileImage);
@@ -136,7 +144,7 @@ const EditUserModal = ({
     const file = e.target.files[0];
     if (file) {
       setFormData((prev) => ({ ...prev, profileImage: file }));
-      
+
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -232,23 +240,32 @@ const EditUserModal = ({
     try {
       setLoading(true);
       const res = await updateUserProfile(selectedUser?._id, data, token);
-      
-      
-        toast.success("User updated successfully!");
-        
-        const updatedUser = res.data || res;
-        
-        // Update respective state based on role
-        if (role === "doctor") {
-          setDoctors((prev) => prev.map((d) => (d._id === updatedUser._id ? updatedUser : d)));
-        } else if (role === "receptionist") {
-          setReceptionists((prev) => prev.map((r) => (r._id === updatedUser._id ? updatedUser : r)));
-        } else {
-          setUsers((prev) => prev.map((u) => (u._id === updatedUser._id ? updatedUser : u)));
-        }
 
-        onClose();
-      
+      toast.success("User updated successfully!");
+
+      const updatedUser = res;
+
+      // Update respective state based on role
+      if (role === "doctor") {
+        setDoctors((prev) =>
+          prev.map((d) => (d._id === updatedUser._id ? updatedUser : d))
+        );
+      } else if (role === "receptionist") {
+        setReceptionists((prev) =>
+          prev.map((r) => (r._id === updatedUser._id ? updatedUser : r))
+        );
+      } else if (role === "user") {
+        setUsers((prev) =>
+          prev.map((u) => (u._id === updatedUser._id ? updatedUser : u))
+        );
+      } else {
+        setProfile((prev) => ({
+          ...prev,
+          ...updatedUser,
+        }));
+      }
+
+      onClose();
     } catch (error) {
       console.error("Update error:", error);
       toast.error(error?.message || "Update failed!");
@@ -265,7 +282,7 @@ const EditUserModal = ({
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
@@ -273,8 +290,10 @@ const EditUserModal = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6 pb-4 border-b">
           <h2 className="text-2xl font-bold text-blue-600">
-            {selectedUser ? "Edit" : "Add New"} 
-            <span className="text-blue-600 ml-2">{role?.charAt(0).toUpperCase() + role.slice(1)}</span>
+            {selectedUser ? "Edit" : "Add New"}
+            <span className="text-blue-600 ml-2">
+              {role?.charAt(0).toUpperCase() + role.slice(1)}
+            </span>
           </h2>
           <button
             onClick={onClose}
@@ -287,7 +306,9 @@ const EditUserModal = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Common Fields */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-700">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-gray-700">
+              Personal Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -303,7 +324,7 @@ const EditUserModal = ({
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Last Name
@@ -455,7 +476,9 @@ const EditUserModal = ({
           {/* Doctor Fields */}
           {role === "doctor" && (
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">Professional Information</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                Professional Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -483,7 +506,6 @@ const EditUserModal = ({
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-          
                     {rooms.map(
                       (room) =>
                         room.status === "available" && (
@@ -530,7 +552,9 @@ const EditUserModal = ({
               {/* Doctor Schedule Section */}
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-semibold text-gray-700">Weekly Schedule</h4>
+                  <h4 className="text-lg font-semibold text-gray-700">
+                    Weekly Schedule
+                  </h4>
                   <button
                     type="button"
                     onClick={addScheduleRow}
@@ -539,7 +563,7 @@ const EditUserModal = ({
                     <Plus className="w-4 h-4" /> Add Slot
                   </button>
                 </div>
-                
+
                 <div className="space-y-3">
                   {formData.doctorInfo.schedule.map((slot, index) => (
                     <div
@@ -567,7 +591,11 @@ const EditUserModal = ({
                             type="time"
                             value={slot.startTime}
                             onChange={(e) =>
-                              handleScheduleChange(index, "startTime", e.target.value)
+                              handleScheduleChange(
+                                index,
+                                "startTime",
+                                e.target.value
+                              )
                             }
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
@@ -576,7 +604,11 @@ const EditUserModal = ({
                             type="time"
                             value={slot.endTime}
                             onChange={(e) =>
-                              handleScheduleChange(index, "endTime", e.target.value)
+                              handleScheduleChange(
+                                index,
+                                "endTime",
+                                e.target.value
+                              )
                             }
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />

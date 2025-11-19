@@ -23,6 +23,10 @@ const loginUser = async (req, res) => {
       return res.status(403).json({ message: "User account is disabled or Invited" });
     }
 
+    console.log('====================================');
+    console.log(user);
+    console.log('====================================');
+
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password); 
     if (!isMatch) {

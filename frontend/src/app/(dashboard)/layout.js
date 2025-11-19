@@ -26,8 +26,11 @@ import { useDoctorContext } from "@/context/doctorContext";
 import { useReceptionistContext } from "@/context/receptionistContext";
 import { useCaseHistoryContext } from "@/context/caseHistoryContext";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }) {
+  const Router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
@@ -39,13 +42,24 @@ export default function DashboardLayout({ children }) {
   const { setReceptionists } = useReceptionistContext();
   const { setCaseHistory } = useCaseHistoryContext();
 
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    // localStorage browser me available hota hai
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      toast.error("No authentication token found");
+      Router.push("/login");
+    } else {
+      setToken(storedToken);
+    }
+  }, [Router]);
+
   useEffect(() => {
     const loadData = async () => {
       try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
         const data = await getDashboardData(token);
-        
+
         toast.success("Dashboard data loaded!");
         setProfile(data.profile || null);
         setUsers(data.users || []);
@@ -54,7 +68,6 @@ export default function DashboardLayout({ children }) {
         setDoctors(data.doctors || []);
         setReceptionists(data.receptionists || []);
         setCaseHistory(data.caseHistory || []);
-
       } catch (error) {
         toast.error(error.message || "Failed to load data");
       } finally {
@@ -62,33 +75,75 @@ export default function DashboardLayout({ children }) {
       }
     };
 
-    loadData();
-  }, []);
+    if (token) loadData();
+  }, [token]);
 
   const navigation = [
-    { name: "Overview", href: "/dashboard", icon: LayoutDashboard, roles: ["admin", "receptionist", "doctor","user"] },
-    { name: "Users", href: "/dashboard/users", icon: Users, roles: ["admin", "receptionist"] },
-    { name: "Staff", href: "/dashboard/staff", icon: UserCheck, roles: ["admin"] },
-    { name: "Doctors", href: "/dashboard/doctors", icon: Stethoscope, roles: ["admin", "receptionist","user"] },
-    { name: "Appointments", href: "/dashboard/appointments", icon: Calendar, roles: ["admin", "receptionist", "doctor","user"] },
-    { name: "Rooms", href: "/dashboard/rooms", icon: Home, roles: ["admin", "receptionist"] },
-    { name: "Case History", href: "/dashboard/case-history", icon: FileText, roles: ["admin", "receptionist","user"] },
-    { name: "Profile", href: "/dashboard/profile", icon: User, roles: ["admin", "receptionist", "doctor","user"] },
+    {
+      name: "Overview",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+      roles: ["admin", "receptionist", "doctor", "user"],
+    },
+    {
+      name: "Users",
+      href: "/dashboard/users",
+      icon: Users,
+      roles: ["admin", "receptionist"],
+    },
+    {
+      name: "Staff",
+      href: "/dashboard/staff",
+      icon: UserCheck,
+      roles: ["admin"],
+    },
+    {
+      name: "Doctors",
+      href: "/dashboard/doctors",
+      icon: Stethoscope,
+      roles: ["admin", "receptionist", "user"],
+    },
+    {
+      name: "Appointments",
+      href: "/dashboard/appointments",
+      icon: Calendar,
+      roles: ["admin", "receptionist", "doctor", "user"],
+    },
+    {
+      name: "Rooms",
+      href: "/dashboard/rooms",
+      icon: Home,
+      roles: ["admin", "receptionist"],
+    },
+    {
+      name: "Case History",
+      href: "/dashboard/case-history",
+      icon: FileText,
+      roles: ["admin", "receptionist", "user"],
+    },
+    {
+      name: "Profile",
+      href: "/dashboard/profile",
+      icon: User,
+      roles: ["admin", "receptionist", "doctor", "user"],
+    },
   ];
 
   const filteredNavigation = navigation.filter((item) =>
     item.roles.includes(profile?.role)
   );
 
-  console.log('====================================');
+  console.log("====================================");
   console.log(profile);
-  console.log('====================================');
+  console.log("====================================");
 
-  if (loading) {
+  if (loading || !token) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
         <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-blue-500"></div>
-        <p className="mt-4 text-gray-600 font-medium">Loading dashboard data...</p>
+        <p className="mt-4 text-gray-600 font-medium">
+          Loading dashboard data...
+        </p>
       </div>
     );
   }
@@ -178,7 +233,8 @@ export default function DashboardLayout({ children }) {
               </button>
               <div className="ml-4 lg:ml-0">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {navigation.find((item) => item.href === pathname)?.name || "Dashboard"}
+                  {navigation.find((item) => item.href === pathname)?.name ||
+                    "Dashboard"}
                 </h2>
               </div>
             </div>

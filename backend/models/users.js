@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     address: { type: String, required: [true, "Address is required"] },
     profileImage: { type: String, default: "" }, // for all users
-    
+
     role: {
       type: String,
       enum: ["user", "doctor", "admin", "receptionist"],
@@ -30,13 +30,16 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "invited", "disabled"],
       default: "active", // By default user active hoga
     },
-    
+
+    otp: String,
+    otpExpires: Date,
+
     // Doctor-specific fields
     doctorInfo: {
       specialization: { type: String },
       doctorRoom: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Room"
+        ref: "Room",
       },
       experience: { type: Number },
       consultationFee: { type: Number },
@@ -48,7 +51,6 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
-    
   },
   { timestamps: true }
 );

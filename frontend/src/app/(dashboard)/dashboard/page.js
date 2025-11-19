@@ -12,6 +12,8 @@ const Page = () => {
   const { profile } = useProfileContext();
   const role = profile?.role;
 
+  
+
   if (!role) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">

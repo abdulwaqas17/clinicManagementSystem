@@ -24,6 +24,7 @@ import { useProfileContext } from "@/context/profileContext";
 import { useRouter } from "next/navigation";
 import { updateUserProfile } from "@/services/usersServices";
 import toast from "react-hot-toast";
+import EditUserModal from "./UserEditModal";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -376,513 +377,514 @@ export default function ProfilePage() {
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
-        <EditProfileModal
-          profile={profile}
-          setProfile={setProfile}
-          onClose={() => setIsEditModalOpen(false)}
+        <EditUserModal
+        selectedUser={profile}
+        setProfile={setProfile}
+        role="self"
+        onClose={() => setIsEditModalOpen(false)}
+        
         />
+        // <EditProfileModal
+        //   profile={profile}
+        //   setProfile={setProfile}
+        //   onClose={() => setIsEditModalOpen(false)}
+        // />
       )}
     </div>
   );
 }
 
 // Edit Profile Modal Component
-function EditProfileModal({ profile, setProfile, onClose }) {
+// function EditProfileModal({ profile, setProfile, onClose }) {
+//   // Form state
+//   const [formData, setFormData] = useState({
+//     firstName: profile?.firstName || "",
+//     lastName: profile?.lastName || "",
+//     email: profile?.email || "",
+//     phone: profile?.phone || "",
+//     date_of_birth: profile?.date_of_birth
+//       ? new Date(profile.date_of_birth).toISOString().split("T")[0]
+//       : "",
+//     gender: profile?.gender || "male",
+//     address: profile?.address || "",
+//     profileImage: profile?.profileImage || "",
+//     // Doctor specific fields
+//     doctorInfo: profile?.doctorInfo
+//       ? {
+//           specialization: profile.doctorInfo.specialization || "",
+//           experience: profile.doctorInfo.experience || 0,
+//           consultationFee: profile.doctorInfo.consultationFee || 0,
+//           schedule: profile.doctorInfo.schedule || [],
+//         }
+//       : null,
+//   });
 
-  // Form state
-  const [formData, setFormData] = useState({
-    firstName: profile?.firstName || "",
-    lastName: profile?.lastName || "",
-    email: profile?.email || "",
-    phone: profile?.phone || "",
-    date_of_birth: profile?.date_of_birth
-      ? new Date(profile.date_of_birth).toISOString().split("T")[0]
-      : "",
-    gender: profile?.gender || "male",
-    address: profile?.address || "",
-    profileImage: profile?.profileImage || "",
-    // Doctor specific fields
-    doctorInfo: profile?.doctorInfo
-      ? {
-          specialization: profile.doctorInfo.specialization || "",
-          experience: profile.doctorInfo.experience || 0,
-          consultationFee: profile.doctorInfo.consultationFee || 0,
-          schedule: profile.doctorInfo.schedule || [],
-        }
-      : null,
-  });
+//   const [errors, setErrors] = useState({});
+//   const [loading, setLoading] = useState(false);
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+//   // Submit handler
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
-  // Submit handler
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//     // Validation (same as before)
+//     const newErrors = {};
+//     if (!formData.firstName.trim())
+//       newErrors.firstName = "First name is required";
+//     if (!formData.email.trim()) newErrors.email = "Email is required";
+//     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+//     if (!formData.date_of_birth)
+//       newErrors.date_of_birth = "Date of birth is required";
+//     if (!formData.gender) newErrors.gender = "Gender is required";
 
-    // Validation (same as before)
-    const newErrors = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-    if (!formData.date_of_birth)
-      newErrors.date_of_birth = "Date of birth is required";
-    if (!formData.gender) newErrors.gender = "Gender is required";
+//     if (profile?.role === "doctor") {
+//       if (!formData.doctorInfo.specialization.trim())
+//         newErrors.specialization = "Specialization is required";
+//       if (formData.doctorInfo.experience < 0)
+//         newErrors.experience = "Experience cannot be negative";
+//       if (formData.doctorInfo.consultationFee < 0)
+//         newErrors.consultationFee = "Consultation fee cannot be negative";
+//       if (formData.doctorInfo.schedule.length < 1)
+//         newErrors.schedule = "Schedule is required";
+//     }
 
-    if (profile?.role === "doctor") {
-      if (!formData.doctorInfo.specialization.trim())
-        newErrors.specialization = "Specialization is required";
-      if (formData.doctorInfo.experience < 0)
-        newErrors.experience = "Experience cannot be negative";
-      if (formData.doctorInfo.consultationFee < 0)
-        newErrors.consultationFee = "Consultation fee cannot be negative";
-      if (formData.doctorInfo.schedule.length < 1) 
-        newErrors.schedule = "Schedule is required";
-    }
+//     if (Object.keys(newErrors).length > 0) {
+//       setErrors(newErrors);
+//       return;
+//     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+//     try {
+//       const token = localStorage.getItem("token"); // or from context
+//       if (!token) throw new Error("User not authenticated");
+//       setLoading(true);
+//       const formPayload = new FormData();
 
-    try {
-      const token = localStorage.getItem("token"); // or from context
-      if (!token) throw new Error("User not authenticated");
-      setLoading(true);
-      const formPayload = new FormData();
+//       formPayload.append("firstName", formData.firstName);
+//       formPayload.append("lastName", formData.lastName);
+//       formPayload.append("email", formData.email);
+//       formPayload.append("phone", formData.phone);
+//       formPayload.append("gender", formData.gender);
+//       formPayload.append("date_of_birth", formData.date_of_birth);
+//       formPayload.append("address", formData.address);
 
-      formPayload.append("firstName", formData.firstName);
-      formPayload.append("lastName", formData.lastName);
-      formPayload.append("email", formData.email);
-      formPayload.append("phone", formData.phone);
-      formPayload.append("gender", formData.gender);
-      formPayload.append("date_of_birth", formData.date_of_birth);
-      formPayload.append("address", formData.address);
+//       if (formData.profileImage instanceof File) {
+//         formPayload.append("profileImage", formData.profileImage);
+//       }
 
-      if (formData.profileImage instanceof File) {
-        formPayload.append("profileImage", formData.profileImage);
-      }
+//       if (profile.role === "doctor" && formData.doctorInfo) {
+//         formPayload.append("doctorInfo", JSON.stringify(formData.doctorInfo));
+//       }
 
-      if (profile.role === "doctor" && formData.doctorInfo) {
+//       const result = await updateUserProfile(profile._id, formPayload, token);
 
-        formPayload.append("doctorInfo", JSON.stringify(formData.doctorInfo));
-      }
+//       setProfile(result);
+//       onClose();
+//       toast.success("Profile updated successfully!");
+//     } catch (error) {
+//       toast.error(error.message || "Failed to update profile");
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
 
-      const result = await updateUserProfile(profile._id, formPayload, token);
+//   // Handle input changes
+//   const handleChange = (e) => {
+//     const { name, value, type } = e.target;
 
-      if (result.success) {
-        setProfile(result.data);
-        onClose();
-        toast.success("Profile updated successfully!");
-      }
-    } catch (error) {
-      toast.error(error.message || "Failed to update profile");
-    } finally {
-      setLoading(false);
-    }
-  };
+//     if (name.startsWith("doctorInfo.")) {
+//       const doctorInfoField = name.split(".")[1];
+//       setFormData((prev) => ({
+//         ...prev,
+//         doctorInfo: {
+//           ...prev.doctorInfo,
+//           [doctorInfoField]: type === "number" ? parseFloat(value) : value,
+//         },
+//       }));
+//     } else {
+//       setFormData((prev) => ({
+//         ...prev,
+//         [name]: value,
+//       }));
+//     }
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value, type } = e.target;
+//     // Clear error when user starts typing
+//     if (errors[name]) {
+//       setErrors((prev) => ({
+//         ...prev,
+//         [name]: "",
+//       }));
+//     }
+//   };
 
-    if (name.startsWith("doctorInfo.")) {
-      const doctorInfoField = name.split(".")[1];
-      setFormData((prev) => ({
-        ...prev,
-        doctorInfo: {
-          ...prev.doctorInfo,
-          [doctorInfoField]: type === "number" ? parseFloat(value) : value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+//   // Schedule management functions
+//   const addScheduleSlot = () => {
+//     setFormData((prev) => ({
+//       ...prev,
+//       doctorInfo: {
+//         ...prev.doctorInfo,
+//         schedule: [
+//           ...(prev.doctorInfo?.schedule || []),
+//           { day: "Monday", startTime: "09:00", endTime: "17:00" },
+//         ],
+//       },
+//     }));
+//   };
 
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-  };
+//   // update schedule slot
+//   const updateScheduleSlot = (index, field, value) => {
+//     setFormData((prev) => ({
+//       ...prev,
+//       doctorInfo: {
+//         ...prev.doctorInfo,
+//         schedule: prev.doctorInfo.schedule.map((slot, i) =>
+//           i === index ? { ...slot, [field]: value } : slot
+//         ),
+//       },
+//     }));
+//   };
 
+//   // remove schedule slot
+//   const removeScheduleSlot = (index) => {
+//     setFormData((prev) => ({
+//       ...prev,
+//       doctorInfo: {
+//         ...prev.doctorInfo,
+//         schedule: prev.doctorInfo.schedule.filter((_, i) => i !== index),
+//       },
+//     }));
+//   };
 
-  // Schedule management functions
-  const addScheduleSlot = () => {
-    setFormData((prev) => ({
-      ...prev,
-      doctorInfo: {
-        ...prev.doctorInfo,
-        schedule: [
-          ...(prev.doctorInfo?.schedule || []),
-          { day: "Monday", startTime: "09:00", endTime: "17:00" },
-        ],
-      },
-    }));
-  };
+//   return (
+//     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+//       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+//         <div className="p-6 border-b border-gray-200">
+//           <div className="flex items-center justify-between">
+//             <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
+//             <button
+//               onClick={onClose}
+//               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+//             >
+//               <X className="w-5 h-5" />
+//             </button>
+//           </div>
+//         </div>
 
-  // update schedule slot
-  const updateScheduleSlot = (index, field, value) => {
-    
-    setFormData((prev) => ({
-      ...prev,
-      doctorInfo: {
-        ...prev.doctorInfo,
-        schedule: prev.doctorInfo.schedule.map((slot, i) =>
-          i === index ? { ...slot, [field]: value } : slot
-        ),
-      },
-    }));
-  };
+//         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+//           {/* Personal Information */}
+//           <div>
+//             <h3 className="text-lg font-semibold text-gray-900 mb-4">
+//               Personal Information
+//             </h3>
+//             <div className="grid grid-cols-2 gap-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   First Name *
+//                 </label>
+//                 <input
+//                   type="text"
+//                   name="firstName"
+//                   value={formData.firstName}
+//                   onChange={handleChange}
+//                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                     errors.firstName ? "border-red-300" : "border-gray-300"
+//                   }`}
+//                 />
+//                 {errors.firstName && (
+//                   <p className="text-red-500 text-xs mt-1">
+//                     {errors.firstName}
+//                   </p>
+//                 )}
+//               </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Last Name
+//                 </label>
+//                 <input
+//                   type="text"
+//                   name="lastName"
+//                   value={formData.lastName}
+//                   onChange={handleChange}
+//                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//                 />
+//               </div>
+//             </div>
 
-  // remove schedule slot
-  const removeScheduleSlot = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      doctorInfo: {
-        ...prev.doctorInfo,
-        schedule: prev.doctorInfo.schedule.filter((_, i) => i !== index),
-      },
-    }));
-  };
+//             <div className="grid grid-cols-2 gap-4 mt-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Email *
+//                 </label>
+//                 <input
+//                   type="email"
+//                   name="email"
+//                   value={formData.email}
+//                   onChange={handleChange}
+//                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                     errors.email ? "border-red-300" : "border-gray-300"
+//                   }`}
+//                 />
+//                 {errors.email && (
+//                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+//                 )}
+//               </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Phone *
+//                 </label>
+//                 <input
+//                   type="tel"
+//                   name="phone"
+//                   value={formData.phone}
+//                   onChange={handleChange}
+//                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                     errors.phone ? "border-red-300" : "border-gray-300"
+//                   }`}
+//                 />
+//                 {errors.phone && (
+//                   <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+//                 )}
+//               </div>
+//             </div>
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+//             <div className="grid grid-cols-2 gap-4 mt-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Date of Birth *
+//                 </label>
+//                 <input
+//                   type="date"
+//                   name="date_of_birth"
+//                   value={formData.date_of_birth}
+//                   onChange={handleChange}
+//                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                     errors.date_of_birth ? "border-red-300" : "border-gray-300"
+//                   }`}
+//                 />
+//                 {errors.date_of_birth && (
+//                   <p className="text-red-500 text-xs mt-1">
+//                     {errors.date_of_birth}
+//                   </p>
+//                 )}
+//               </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Gender *
+//                 </label>
+//                 <select
+//                   name="gender"
+//                   value={formData.gender}
+//                   onChange={handleChange}
+//                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                     errors.gender ? "border-red-300" : "border-gray-300"
+//                   }`}
+//                 >
+//                   <option value="male">Male</option>
+//                   <option value="female">Female</option>
+//                   <option value="other">Other</option>
+//                 </select>
+//                 {errors.gender && (
+//                   <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
+//                 )}
+//               </div>
+//             </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Personal Information */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Personal Information
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name *
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.firstName ? "border-red-300" : "border-gray-300"
-                  }`}
-                />
-                {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.firstName}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
+//             <div className="mt-4">
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Address
+//               </label>
+//               <textarea
+//                 name="address"
+//                 value={formData.address}
+//                 onChange={handleChange}
+//                 rows={3}
+//                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//               />
+//             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.email ? "border-red-300" : "border-gray-300"
-                  }`}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone *
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.phone ? "border-red-300" : "border-gray-300"
-                  }`}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                )}
-              </div>
-            </div>
+//             <div className="mt-4">
+//               <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 Profile Image URL
+//               </label>
+//               <input
+//                 type="file"
+//                 accept="image/*"
+//                 onChange={(e) =>
+//                   setFormData((prev) => ({
+//                     ...prev,
+//                     profileImage: e.target.files[0],
+//                   }))
+//                 }
+//               />
+//             </div>
+//           </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date of Birth *
-                </label>
-                <input
-                  type="date"
-                  name="date_of_birth"
-                  value={formData.date_of_birth}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.date_of_birth ? "border-red-300" : "border-gray-300"
-                  }`}
-                />
-                {errors.date_of_birth && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.date_of_birth}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Gender *
-                </label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.gender ? "border-red-300" : "border-gray-300"
-                  }`}
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-                {errors.gender && (
-                  <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
-                )}
-              </div>
-            </div>
+//           {/* Doctor Information - Only for Doctors */}
+//           {profile?.role === "doctor" && (
+//             <div>
+//               <h3 className="text-lg font-semibold text-gray-900 mb-4">
+//                 Professional Information
+//               </h3>
+//               <div className="grid grid-cols-2 gap-4">
+//                 <div>
+//                   <label className="block text-sm font-medium text-gray-700 mb-1">
+//                     Specialization *
+//                   </label>
+//                   <input
+//                     type="text"
+//                     name="doctorInfo.specialization"
+//                     value={formData.doctorInfo?.specialization || ""}
+//                     onChange={handleChange}
+//                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                       errors.specialization
+//                         ? "border-red-300"
+//                         : "border-gray-300"
+//                     }`}
+//                     placeholder="e.g., Cardiology"
+//                   />
+//                   {errors.specialization && (
+//                     <p className="text-red-500 text-xs mt-1">
+//                       {errors.specialization}
+//                     </p>
+//                   )}
+//                 </div>
+//                 <div>
+//                   <label className="block text-sm font-medium text-gray-700 mb-1">
+//                     Experience (Years) *
+//                   </label>
+//                   <input
+//                     type="number"
+//                     name="doctorInfo.experience"
+//                     value={formData.doctorInfo?.experience || 0}
+//                     onChange={handleChange}
+//                     min="0"
+//                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                       errors.experience ? "border-red-300" : "border-gray-300"
+//                     }`}
+//                   />
+//                   {errors.experience && (
+//                     <p className="text-red-500 text-xs mt-1">
+//                       {errors.experience}
+//                     </p>
+//                   )}
+//                 </div>
+//               </div>
 
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
-              </label>
-              <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+//               <div className="mt-4">
+//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                   Consultation Fee ($) *
+//                 </label>
+//                 <input
+//                   type="number"
+//                   name="doctorInfo.consultationFee"
+//                   value={formData.doctorInfo?.consultationFee || 0}
+//                   onChange={handleChange}
+//                   min="0"
+//                   step="0.01"
+//                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+//                     errors.consultationFee
+//                       ? "border-red-300"
+//                       : "border-gray-300"
+//                   }`}
+//                 />
+//                 {errors.consultationFee && (
+//                   <p className="text-red-500 text-xs mt-1">
+//                     {errors.consultationFee}
+//                   </p>
+//                 )}
+//               </div>
 
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Profile Image URL
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    profileImage: e.target.files[0],
-                  }))
-                }
-              />
-            </div>
-          </div>
+//               {/* Schedule Management */}
+//               <div className="mt-6">
+//                 <div className="flex items-center justify-between mb-4">
+//                   <h4 className="font-medium text-gray-900">Weekly Schedule</h4>
+//                   <button
+//                     type="button"
+//                     onClick={addScheduleSlot}
+//                     className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
+//                   >
+//                     <Plus className="w-4 h-4" />
+//                     <span>Add Slot</span>
+//                   </button>
+//                 </div>
 
-          {/* Doctor Information - Only for Doctors */}
-          {profile?.role === "doctor" && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Professional Information
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Specialization *
-                  </label>
-                  <input
-                    type="text"
-                    name="doctorInfo.specialization"
-                    value={formData.doctorInfo?.specialization || ""}
-                    onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.specialization
-                        ? "border-red-300"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="e.g., Cardiology"
-                  />
-                  {errors.specialization && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.specialization}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Experience (Years) *
-                  </label>
-                  <input
-                    type="number"
-                    name="doctorInfo.experience"
-                    value={formData.doctorInfo?.experience || 0}
-                    onChange={handleChange}
-                    min="0"
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.experience ? "border-red-300" : "border-gray-300"
-                    }`}
-                  />
-                  {errors.experience && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.experience}
-                    </p>
-                  )}
-                </div>
-              </div>
+//                 <div className="space-y-3">
+//                   {formData.doctorInfo?.schedule?.map((slot, index) => (
+//                     <div
+//                       key={index}
+//                       className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg"
+//                     >
+//                       <select
+//                         value={slot.day}
+//                         onChange={(e) =>
+//                           updateScheduleSlot(index, "day", e.target.value)
+//                         }
+//                         className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+//                       >
+//                         <option value="Monday">Monday</option>
+//                         <option value="Tuesday">Tuesday</option>
+//                         <option value="Wednesday">Wednesday</option>
+//                         <option value="Thursday">Thursday</option>
+//                         <option value="Friday">Friday</option>
+//                         <option value="Saturday">Saturday</option>
+//                         <option value="Sunday">Sunday</option>
+//                       </select>
 
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Consultation Fee ($) *
-                </label>
-                <input
-                  type="number"
-                  name="doctorInfo.consultationFee"
-                  value={formData.doctorInfo?.consultationFee || 0}
-                  onChange={handleChange}
-                  min="0"
-                  step="0.01"
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.consultationFee
-                      ? "border-red-300"
-                      : "border-gray-300"
-                  }`}
-                />
-                {errors.consultationFee && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.consultationFee}
-                  </p>
-                )}
-              </div>
+//                       <input
+//                         type="time"
+//                         value={slot.startTime}
+//                         onChange={(e) =>
+//                           updateScheduleSlot(index, "startTime", e.target.value)
+//                         }
+//                         className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+//                       />
 
-              {/* Schedule Management */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-medium text-gray-900">Weekly Schedule</h4>
-                  <button
-                    type="button"
-                    onClick={addScheduleSlot}
-                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Slot</span>
-                  </button>
-                </div>
+//                       <span className="text-gray-500">to</span>
 
-                <div className="space-y-3">
-                  {formData.doctorInfo?.schedule?.map((slot, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg"
-                    >
-                      <select
-                        value={slot.day}
-                        onChange={(e) =>
-                          updateScheduleSlot(index, "day", e.target.value)
-                        }
-                        className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                      </select>
+//                       <input
+//                         type="time"
+//                         value={slot.endTime}
+//                         onChange={(e) =>
+//                           updateScheduleSlot(index, "endTime", e.target.value)
+//                         }
+//                         className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+//                       />
 
-                      <input
-                        type="time"
-                        value={slot.startTime}
-                        onChange={(e) =>
-                          updateScheduleSlot(index, "startTime", e.target.value)
-                        }
-                        className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
+//                       <button
+//                         type="button"
+//                         onClick={() => removeScheduleSlot(index)}
+//                         className="p-1 text-red-600 hover:text-red-700"
+//                       >
+//                         <X className="w-4 h-4" />
+//                       </button>
+//                       {errors.schedule && (
+//                         <p className="text-red-500 text-xs mt-1">
+//                           {errors.schedule}
+//                         </p>
+//                       )}
+//                     </div>
+//                   ))}
+//                 </div>
+//               </div>
+//             </div>
+//           )}
 
-                      <span className="text-gray-500">to</span>
-
-                      <input
-                        type="time"
-                        value={slot.endTime}
-                        onChange={(e) =>
-                          updateScheduleSlot(index, "endTime", e.target.value)
-                        }
-                        className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => removeScheduleSlot(index)}
-                        className="p-1 text-red-600 hover:text-red-700"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                       {errors.schedule && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.schedule}
-                  </p>
-                )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Save className="w-4 h-4" />
-              <span>{loading ? "Saving..." : "Save Changes"} </span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
+//           <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+//             <button
+//               type="button"
+//               onClick={onClose}
+//               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+//             >
+//               Cancel
+//             </button>
+//             <button
+//               type="submit"
+//               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+//             >
+//               <Save className="w-4 h-4" />
+//               <span>{loading ? "Saving..." : "Save Changes"} </span>
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
