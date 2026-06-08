@@ -27,8 +27,8 @@ const forgotPassword = async (req, res) => {
     });
 
     await transporter.sendMail({
-        to:"www.waqas00001@gmail.com",
-    //   to: user.email,
+        // to:"www.waqas00001@gmail.com",
+      to: user.email,
       subject: "Password Reset OTP",
       html: `<h2>Password Reset Request</h2>
              <p>Your OTP code is: <b>${otp}</b></p>
